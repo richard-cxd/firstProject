@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.MonitoringPointRealTimeMapper">
+    <!--调用汤总存储过程获取该维保公司的所有监测点信息-->
+    <select id="getRealTimeByZoneId" resultType="java.util.LinkedHashMap">
+        CALL getJCDRealData(#{zoneid},NULL,NULL)
+    </select>
+    <!-- 查询某个监测点的信息 -->
+    <select id="findMonitoringDetails" resultType="java.util.LinkedHashMap">
+        SELECT
+            i.JCD_AliasID monitoringPointAliasId,
+            i.SBTZ_id ynBaseEquipmentLongId,
+            i.DF_id ynBaseEnterpriseSubstationLongId,
+            i.JCD_Type tag
+        FROM
+            yj_info i
+        WHERE
+            i.JCD_CoreID = #{monitoringId}
+    </select>
+</mapper>

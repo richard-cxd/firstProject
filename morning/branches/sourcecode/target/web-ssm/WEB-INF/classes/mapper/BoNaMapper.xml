@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.BoNaMapper">
+
+    <!-- 查询监测点id,监测点名称,监测点所在的电房id封装成JsTree -->
+    <select id="addBD" resultType="java.util.Map">
+        call JC_ADD_BD(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--电流-->
+    <select id="addDL" resultType="java.util.Map">
+        call JC_ADD_DL(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--电压-->
+    <select id="addDY" resultType="java.util.Map">
+        call JC_ADD_DY(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--频率-->
+    <select id="addPL" resultType="java.util.Map">
+        call JC_ADD_PL(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--视在功率-->
+    <select id="addSZ" resultType="java.util.Map">
+        call JC_ADD_SZ(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--无功-->
+    <select id="addWG" resultType="java.util.Map">
+        call JC_ADD_WG(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--有功-->
+    <select id="addYG" resultType="java.util.Map">
+        call JC_ADD_YG(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--功率因数-->
+    <select id="addYS" resultType="java.util.Map">
+        call JC_ADD_YS(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+<!--电压谐波-->
+    <select id="addXY" resultType="java.util.Map">
+         call JC_ADD_XY(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+    <!--电流谐波-->
+    <select id="addXL" resultType="java.util.Map">
+         call JC_ADD_XL(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+   <!-- <select id="addGJ" resultType="java.util.Map">
+        call JC_ADD_GJ(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},#{level,mode=IN,jdbcType=VARCHAR},#{type,mode=IN,jdbcType=VARCHAR},#{msg,mode=IN,jdbcType=VARCHAR});
+    </select>-->
+    <!--分时电能-->
+    <select id="addFS" resultType="java.util.Map">
+        call JC_ADD_FS(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+    <!-- 零序-->
+    <select id="addNX" resultType="java.util.Map">
+        call JC_ADD_NX(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},3,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <!--================================================================================================-->
+
+    <select id="selectTB" resultType="java.lang.String">
+        select WBGS_id from yj_info where JCD_CoreID=#{jcdId};
+    </select>
+
+    <update id="updateDD" >
+        update ${TB} set Ye_TingdianCount = #{TingCount},Ye_TingdianDate = #{TingDate} where jcd_coreid = #{jcdId} and datadate = #{DataDate};
+    </update>
+
+
+    <select id="addDN" resultType="java.util.Map">
+        call JC_ADD_DN(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addAMAX" resultType="java.util.Map">
+        call JC_ADD_YYGL(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addDLJZ" resultType="java.util.Map">
+        call JC_ADD_DLJZ(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addDYJZ" resultType="java.util.Map">
+        call JC_ADD_DYJZ(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addRZXB" resultType="java.util.Map">
+        call JC_ADD_rzxb(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addRDX" resultType="java.util.Map">
+        call JC_ADD_rdx(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addDNM" resultType="java.util.Map">
+        call JC_ADD_DNM(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addYYGLM" resultType="java.util.Map">
+        call JC_ADD_YYGLM(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addDLJZM" resultType="java.util.Map">
+        call JC_ADD_DLJZM(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addDYJZM" resultType="java.util.Map">
+        call JC_ADD_DYJZM(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addMZXB" resultType="java.util.Map">
+        call JC_ADD_Mzxb(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+    <select id="addMDX" resultType="java.util.Map">
+        call JC_ADD_Mdx(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+
+    <select id="addMonthTD" resultType="java.util.Map">
+        call JC_ADD_MTD(#{jcdId,mode=IN,jdbcType=VARCHAR},#{DataDate,mode=IN,jdbcType=VARCHAR},1,#{time,mode=IN,jdbcType=VARCHAR},#{param,mode=IN,jdbcType=VARCHAR});
+    </select>
+
+</mapper>

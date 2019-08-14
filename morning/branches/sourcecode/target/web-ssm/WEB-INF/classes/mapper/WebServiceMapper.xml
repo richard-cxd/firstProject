@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.WebServiceMapper">
+
+    <select id="findLastDataTag" parameterType="java.lang.String" resultType="java.lang.String">
+        select LastDataTag from yj_info WHERE idJCD=#{idJCD} AND mStatus!=2
+    </select>
+    <select id="findMaxDataData" resultType="java.lang.String" statementType="STATEMENT">
+       SELECT MAX(yg.DataDate) FROM jc_wg_${companyId} yg  WHERE yg.JCD_id=${idJCD}
+    </select>
+
+    <!-- 用一张表查维保公司所有的监测点 -->
+
+
+    <select id="findData" resultType="java.util.LinkedHashMap" statementType="STATEMENT">
+
+        select 1 type ,IFNULL(yg.${AX},'') ${AX},IFNULL(yg.${BX},'') ${BX},IFNULL(yg.${CX},'') ${CX} from jc_yg_${companyId} yg WHERE yg.JCD_id=${idJCD} AND yg.DataDate = (SELECT MAX(yg.DataDate) FROM jc_wg_${companyId} yg  WHERE yg.JCD_id=${idJCD}) -- 有功
+                UNION ALL
+        select 2 type ,IFNULL(wg.${AX},'') ${AX},IFNULL(wg.${BX},'') ${BX},IFNULL(wg.${CX},'') ${CX} from jc_wg_${companyId} wg WHERE wg.JCD_id=${idJCD} AND wg.DataDate = (SELECT MAX(wg.DataDate) FROM jc_wg_${companyId} wg  WHERE wg.JCD_id=${idJCD}) -- 无功
+                UNION ALL
+        select 3 type ,IFNULL(dl.${AX},'') ${AX},IFNULL(dl.${BX},'') ${BX},IFNULL(dl.${CX},'') ${CX} from jc_dl_${companyId} dl WHERE dl.JCD_id=${idJCD} AND dl.DataDate = (SELECT MAX(dl.DataDate) FROM jc_dl_${companyId} dl  WHERE dl.JCD_id=${idJCD}) -- 电流
+                UNION ALL
+        select 4 type ,IFNULL(dy.${AX},'') ${AX},IFNULL(dy.${BX},'') ${BX},IFNULL(dy.${CX},'') ${CX} from jc_dy_${companyId} dy WHERE dy.JCD_id=${idJCD} AND dy.DataDate = (SELECT MAX(dy.DataDate) FROM jc_dy_${companyId} dy  WHERE dy.JCD_id=${idJCD}) -- 电压
+
+
+
+
+    </select>
+
+
+</mapper>

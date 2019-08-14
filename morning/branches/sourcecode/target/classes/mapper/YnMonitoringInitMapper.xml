@@ -1,0 +1,1575 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.YnMonitoringInitMapper" >
+    <update id="updateMonitoringToZero" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        UPDATE YJ_INFO SET mStatus='-2' WHERE JCD_CoreID=#{monitoringPointCoreId,jdbcType=VARCHAR}
+    </update>
+    <update id="updateMonitoringMStatus" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        UPDATE YJ_INFO SET mStatus=#{mStatus,jdbcType=VARCHAR} WHERE JCD_CoreID=#{monitoringPointCoreId,jdbcType=VARCHAR}
+    </update>
+    <update id="updateMonitoringAndAliasId" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        UPDATE yj_info
+        SET
+            JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR},
+            SBTZ_id = #{ynBaseEquipmentLongId,jdbcType=VARCHAR},
+            SBTZ_Name = #{ynBaseEquipmentName,jdbcType=VARCHAR},
+            DF_id =#{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR},
+            DF_Name = #{ynBaseEnterpriseSubstationName,jdbcType=VARCHAR},
+            YDQY_id = #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR},
+            YDQY_Name = #{ynBaseCustomerEnterpriseName,jdbcType=VARCHAR},
+            WBGS_id = #{ynBaseStaffCompanyId,jdbcType=VARCHAR},
+            WBGS_Name = #{ynBaseStaffCompanyName,jdbcType=VARCHAR},
+            JCD_Name = #{monitoringPointName,jdbcType=VARCHAR},
+            JCD_Addr = #{monitoringPointLogicAddr,jdbcType=VARCHAR},
+            JCD_SimCardNO = #{monitoringSimCardNo,jdbcType=VARCHAR},
+            JCD_SimCardInnerNO = #{monitoringSimCardInnerNo,jdbcType=VARCHAR},
+            JCD_PT = #{monitoringPt,jdbcType=VARCHAR},
+            JCD_CT = #{monitoringCt,jdbcType=VARCHAR},
+            mStatus =#{mStatus,jdbcType=VARCHAR},
+            EDRL = #{ratedCapacity,jdbcType=FLOAT},
+            EDDY = #{ratedVoltage,jdbcType=FLOAT},
+            EDDL =#{ratedCurrent,jdbcType=FLOAT},
+            EDWD = #{ratedTemperature,jdbcType=FLOAT},
+            EDSD =#{ratedHumidity,jdbcType=FLOAT},
+            JCD_Rl =#{monitoringRl,jdbcType=FLOAT}
+
+        WHERE JCD_CoreID = #{monitoringPointCoreId,jdbcType=VARCHAR}
+    </update>
+    <update id="updateMonitoringNoAliasId" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+         UPDATE yj_info
+            SET SBTZ_id = #{ynBaseEquipmentLongId,jdbcType=VARCHAR},
+                SBTZ_Name = #{ynBaseEquipmentName,jdbcType=VARCHAR},
+                DF_id =#{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR},
+                DF_Name = #{ynBaseEnterpriseSubstationName,jdbcType=VARCHAR},
+                YDQY_id = #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR},
+                YDQY_Name = #{ynBaseCustomerEnterpriseName,jdbcType=VARCHAR},
+                WBGS_id = #{ynBaseStaffCompanyId,jdbcType=VARCHAR},
+                WBGS_Name = #{ynBaseStaffCompanyName,jdbcType=VARCHAR},
+                JCD_Name = #{monitoringPointName,jdbcType=VARCHAR},
+                JCD_Addr = #{monitoringPointLogicAddr,jdbcType=VARCHAR},
+                JCD_SimCardNO = #{monitoringSimCardNo,jdbcType=VARCHAR},
+                JCD_SimCardInnerNO = #{monitoringSimCardInnerNo,jdbcType=VARCHAR},
+                JCD_PT = #{monitoringPt,jdbcType=VARCHAR},
+                JCD_CT = #{monitoringCt,jdbcType=VARCHAR},
+                mStatus = #{mStatus,jdbcType=VARCHAR},
+                EDRL = #{ratedCapacity,jdbcType=FLOAT},
+                EDDY = #{ratedVoltage,jdbcType=FLOAT},
+                EDDL = #{ratedCurrent,jdbcType=FLOAT},
+                EDWD = #{ratedTemperature,jdbcType=FLOAT},
+                EDSD = #{ratedHumidity,jdbcType=FLOAT},
+                JCD_Rl =#{monitoringRl,jdbcType=FLOAT}
+            WHERE JCD_CoreID = #{monitoringPointCoreId,jdbcType=VARCHAR}
+    </update>
+    <update id="updateWarningConfig">
+        UPDATE yj_info yi
+            SET yi.GJ_TypeList   = #{warningTypeList,jdbcType=VARCHAR},
+                yi.GJ_StatusList  = #{warningStatusList,jdbcType=VARCHAR},
+                yi.GJ_ValueList   = #{warningValueList,jdbcType=VARCHAR},
+                yi.GJ_UnitList    = #{warningUnitList,jdbcType=VARCHAR},
+                yi.EDDL   = #{ratedCurrent,jdbcType=VARCHAR},
+                yi.EDDY   = #{ratedVoltage,jdbcType=VARCHAR},
+                yi.EDRL   = #{ratedCapacity,jdbcType=VARCHAR},
+                yi.EDWD   = #{ratedTemperature,jdbcType=VARCHAR},
+                yi.EDSD   = #{ratedHumidity,jdbcType=VARCHAR}
+            WHERE yi.JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR}
+            AND yi.mStatus != -2
+    </update>
+    <update id="updateYjDTUName">
+        UPDATE yj_dtu yd
+        SET yd.DTUName =#{monitoringSimCardInnerName}
+        WHERE yd.DTUCoreID = #{monitoringSimCardInnerNo}
+        AND yd.DTUSimCardNO = #{monitoringSimCardNo}
+    </update>
+    <select id="initJcd" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        CALL INIT_JCD(
+            #{monitoringPointCoreId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseStaffCompanyId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseStaffCompanyName,mode=IN,jdbcType=VARCHAR},
+            #{monitoringPointLogicAddr,mode=IN,jdbcType=VARCHAR},
+            #{monitoringSimCardNo,mode=IN,jdbcType=VARCHAR},
+            #{monitoringSimCardInnerNo,mode=IN,jdbcType=VARCHAR},
+            #{monitoringPt,mode=IN,jdbcType=VARCHAR},
+            #{monitoringCt,mode=IN,jdbcType=VARCHAR},
+            #{monitoringSimCardInnerName,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseCustomerEnterpriseLongId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseCustomerEnterpriseName,mode=IN,jdbcType=VARCHAR},
+            #{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEquipmentLongId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEquipmentName,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEnterpriseSubstationLongId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEnterpriseSubstationName,mode=IN,jdbcType=VARCHAR},
+            #{monitoringPointName,mode=IN,jdbcType=VARCHAR},
+            #{ratedCapacity,jdbcType=VARCHAR},
+            #{ratedVoltage,jdbcType=VARCHAR},
+            #{ratedCurrent,jdbcType=VARCHAR},
+            #{ratedTemperature,jdbcType=VARCHAR},
+            #{ratedHumidity,jdbcType=VARCHAR},
+            #{mStatus,mode=IN,jdbcType=VARCHAR},
+            #{monitoringRl,mode=IN,jdbcType=VARCHAR}
+        )
+    </select>
+    <select id="jcdSetLocation" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        CALL JCD_SET_Location(
+            #{monitoringPointCoreId,mode=IN,jdbcType=VARCHAR},
+            #{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},
+            #{monitoringPointName,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseCustomerEnterpriseLongId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseCustomerEnterpriseName,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEquipmentLongId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEquipmentName,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEnterpriseSubstationLongId,mode=IN,jdbcType=VARCHAR},
+            #{ynBaseEnterpriseSubstationName,mode=IN,jdbcType=VARCHAR}
+        )
+    </select>
+
+    <!--根据设备整形id查询该设备下所有的计量点信息-->
+    <select id="selectMonitoringInfoByEquipmentLongId" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        SELECT
+        yjinfo.JCD_CommID  monitoringProtocolId, -- 通讯规约id
+        yjinfo.DF_id ynBaseEnterpriseSubstationLongId,		-- 电房id
+        yjinfo.DF_Name ynBaseEnterpriseSubstationName,		-- 电房名称
+        yjinfo.SBTZ_id ynBaseEquipmentLongId,		-- 设备台账id
+        yjinfo.SBTZ_Name ynBaseEquipmentName,	-- 设备台账名称
+        yjinfo.JCD_AliasID monitoringPointAliasId,	-- 平台自定义id
+        yjinfo.JCD_CoreID monitoringPointCoreId,	-- 监测点固件核心id
+        yjinfo.JCD_Name monitoringPointName, 	-- 监测点名称
+        yjinfo.JCD_Type monitoringPointType, -- 监测点类型 1单相，3三相，4四项，11温度，12湿度 （小于10就是基本电参量，大于10的就是环境参量）
+        yjinfo.JCD_Addr monitoringPointLogicAddr,
+        yjinfo.JCD_SimCardNO monitoringSimCardNo,
+        yjinfo.JCD_Rl monitoringRl,
+        yjinfo.JCD_SimCardInnerNO monitoringSimCardInnerNo,
+        (SELECT yd.DTUName FROM yj_dtu yd WHERE yd.DTUCoreID=yjinfo.JCD_SimCardInnerNO) monitoringSimCardInnerName,
+        yjinfo.JCD_PT monitoringPt,
+        yjinfo.JCD_CT monitoringCt,
+        IF(yjinfo.JCD_Type = 1, '单相', IF(yjinfo.JCD_Type = 3, '三相', IF(yjinfo.JCD_Type = 4, '四相', IF(yjinfo.JCD_Type = 11, '温度', IF(yjinfo.JCD_Type = 12, '湿度', '其他'))))) monitoringPointTypeStr,
+        yjinfo.mstatus mStatus,
+        IF(yjinfo.mstatus = 0, '未生效', IF(yjinfo.mstatus = 1, '已生效', IF(yjinfo.mstatus = -1, '通信异常', IF(yjinfo.mstatus = -1, '已删除', '其他')))) mStatusStr,
+        -- 2018/3/22
+        yjinfo.EDRL ratedCapacity, -- 额定容量，kW
+        yjinfo.EDDY ratedVoltage, -- 额定电压,v
+        yjinfo.EDDL ratedCurrent, -- 额定电流,A
+        yjinfo.EDWD ratedTemperature, -- 额定温度,℃
+        yjinfo.EDSD ratedHumidity-- 额定湿度,%
+        FROM yj_info yjinfo
+        WHERE  yjinfo.mStatus!=-2
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND yjinfo.DF_id=#{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEquipmentLongId!=null and ynBaseEquipmentLongId!=''">
+            AND yjinfo.SBTZ_id =#{ynBaseEquipmentLongId,jdbcType=VARCHAR}
+        </if>
+        ORDER BY yjinfo.SBTZ_id, yjinfo.JCD_CoreID
+    </select>
+    <!--根据用电企业整形id查询该设备下所有的计量点信息 -->
+    <select id="selectSubstationMsgByEnterpriseId" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        SELECT
+        yjinfo.DF_id ynBaseEnterpriseSubstationLongId,		-- 电房id
+        yjinfo.DF_Name ynBaseEnterpriseSubstationName,		-- 电房名称
+        yjinfo.SBTZ_id ynBaseEquipmentLongId,		-- 设备台账id
+        yjinfo.SBTZ_Name ynBaseEquipmentName,	-- 设备台账名称
+        yjinfo.JCD_AliasID monitoringPointAliasId,	-- 平台自定义id
+        yjinfo.JCD_CoreID monitoringPointCoreId,	-- 监测点固件核心id
+        yjinfo.JCD_Name monitoringPointName, 	-- 监测点名称
+        yjinfo.JCD_Addr monitoringPointLogicAddr,
+        yjinfo.JCD_SimCardNO monitoringSimCardNo,
+        yjinfo.JCD_SimCardInnerNO monitoringSimCardInnerNo,
+        (SELECT yd.DTUName FROM yj_dtu yd WHERE yd.DTUCoreID=yjinfo.JCD_SimCardInnerNO) monitoringSimCardInnerName,
+        yjinfo.JCD_PT monitoringPt,
+        yjinfo.JCD_CT monitoringCt,
+        yjinfo.JCD_Type monitoringPointType, -- 监测点类型 1单相，3三相，4四项，11温度，12湿度 （小于10就是基本电参量，大于10的就是环境参量）
+        IF(yjinfo.JCD_Type = 1, '单相', IF(yjinfo.JCD_Type = 3, '三相', IF(yjinfo.JCD_Type = 4, '四相', IF(yjinfo.JCD_Type = 11, '温度', IF(yjinfo.JCD_Type = 12, '湿度', '其他'))))) monitoringPointTypeStr,
+         yjinfo.mstatus mStatus,
+         IF(yjinfo.mstatus = 0, '未生效', IF(yjinfo.mstatus = 1, '已生效', IF(yjinfo.mstatus = -1, '通信异常', IF(yjinfo.mstatus = -1, '已删除', '其他')))) mStatusStr
+        FROM yj_info yjinfo
+        WHERE yjinfo.YDQY_id =  #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        AND yjinfo.mStatus!=-2
+        ORDER BY yjinfo.SBTZ_id, yjinfo.JCD_CoreID
+    </select>
+    <select id="selectMonitoringPointType" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        SELECT
+          t.primary_key primaryKey,
+          t.name
+        FROM monitoringpoint_type t
+        WHERE t.remove_tag = 1
+    </select>
+    <select id="selectMonitoringSubstationByObject" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        SELECT DISTINCT
+        yjinfo.WBGS_id ynBaseStaffCompanyId,
+        yjinfo.WBGS_Name ynBaseStaffCompanyName,
+        yjinfo.DF_id ynBaseEnterpriseSubstationLongId,		-- 电房id
+        yjinfo.DF_Name ynBaseEnterpriseSubstationName 		-- 电房名称
+        FROM yj_info yjinfo
+        WHERE 1 = 1
+        AND yjinfo.mStatus != -2
+        <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+            AND yjinfo.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yjinfo.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND yjinfo.DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+    </select>
+    <select id="selectYnYjInFoByMonitoringObjectDTO" resultType="java.util.LinkedHashMap">
+        SELECT
+        yjinfo.LastDataTag lastDataTag,
+        yjinfo.DF_id ynBaseEnterpriseSubstationLongId,		-- 电房id
+        yjinfo.DF_Name ynBaseEnterpriseSubstationName,		-- 电房名称
+        yjinfo.SBTZ_id ynBaseEquipmentLongId,		-- 设备台账id
+        yjinfo.SBTZ_Name ynBaseEquipmentName,	-- 设备台账名称
+        yjinfo.JCD_AliasID monitoringPointAliasId,	-- 平台自定义id
+        yjinfo.JCD_CoreID monitoringPointCoreId,	-- 监测点固件核心id
+        yjinfo.JCD_Name monitoringPointName, 	-- 监测点名称
+        yjinfo.JCD_Addr monitoringPointLogicAddr,
+        yjinfo.JCD_SimCardNO monitoringSimCardNo,
+        yjinfo.JCD_SimCardInnerNO monitoringSimCardInnerNo,
+        (SELECT yd.DTUName FROM yj_dtu yd WHERE yd.DTUCoreID=yjinfo.JCD_SimCardInnerNO) monitoringSimCardInnerName,
+        yjinfo.JCD_PT monitoringPt,
+        yjinfo.JCD_CT monitoringCt,
+        yjinfo.JCD_Type monitoringPointType, -- 监测点类型 1单相，3三相，4四项，11温度，12湿度 （小于10就是基本电参量，大于10的就是环境参量）
+        IF(yjinfo.JCD_Type = 1, '单相', IF(yjinfo.JCD_Type = 3, '三相', IF(yjinfo.JCD_Type = 4, '四相', IF(yjinfo.JCD_Type = 11, '温度', IF(yjinfo.JCD_Type = 12, '湿度', '其他'))))) monitoringPointTypeStr,
+        yjinfo.mstatus mStatus,
+        IF(yjinfo.mstatus = 0, '未生效', IF(yjinfo.mstatus = 1, '已生效', IF(yjinfo.mstatus = -1, '通信异常', IF(yjinfo.mstatus = -1, '已删除', '其他')))) mStatusStr
+        FROM yj_info yjinfo
+        WHERE 1 = 1
+        AND yjinfo.mStatus != -2
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND yjinfo.JCD_AliasID= #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointCoreId!=null and monitoringPointCoreId!=''">
+            AND yjinfo.JCD_CoreID= #{monitoringPointCoreId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+            AND yjinfo.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yjinfo.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND yjinfo.DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointName!=null and monitoringPointName!=''">
+            AND yjinfo.JCD_Name like CONCAT('%',#{monitoringPointName,jdbcType=VARCHAR},'%')
+        </if>
+        <choose>
+            <when test="oderCol!=null and oderCol!='' and sortDir!=null and sortDir!=''">
+                ORDER BY #{oderCol,jdbcType=VARCHAR} #{sortDir,jdbcType=VARCHAR}
+            </when>
+            <otherwise>
+                ORDER BY yjinfo.DF_id,yjinfo.SBTZ_id
+            </otherwise>
+        </choose>
+        <if test="limitEnd!=0">
+            limit #{limitStart,jdbcType=VARCHAR},#{limitEnd,jdbcType=VARCHAR}
+        </if>
+    </select>
+    <select id="selectYnYjInFoByMonitoringTotalCount" resultType="java.lang.String">
+        SELECT
+        count(*) totalCount
+        FROM yj_info yjinfo
+        WHERE 1 = 1
+        AND yjinfo.mStatus != -2
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND yjinfo.JCD_AliasID= #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointCoreId!=null and monitoringPointCoreId!=''">
+            AND yjinfo.JCD_CoreID= #{monitoringPointCoreId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+            AND yjinfo.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yjinfo.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND yjinfo.DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        ORDER BY yjinfo.DF_id,yjinfo.SBTZ_id
+    </select>
+    <select id="selectYnYjEquipmentInFoByMonitoringObjectDTO" resultType="java.util.LinkedHashMap">
+        SELECT DISTINCT
+        yjinfo.DF_id ynBaseEnterpriseSubstationLongId,		-- 电房id
+        yjinfo.DF_Name ynBaseEnterpriseSubstationName,		-- 电房名称
+        yjinfo.SBTZ_id ynBaseEquipmentLongId,		-- 设备台账id
+        yjinfo.SBTZ_Name ynBaseEquipmentName,	-- 设备台账名称
+        yjinfo.JCD_AliasID monitoringPointAliasId,	-- 平台自定义id
+        yjinfo.JCD_CoreID monitoringPointCoreId,	-- 监测点固件核心id
+        yjinfo.JCD_Name monitoringPointName, 	-- 监测点名称
+        yjinfo.JCD_Type monitoringPointType, -- 监测点类型 1单相，3三相，4四项，11温度，12湿度 （小于10就是基本电参量，大于10的就是环境参量）
+        IF(yjinfo.JCD_Type = 1, '单相', IF(yjinfo.JCD_Type = 3, '三相', IF(yjinfo.JCD_Type = 4, '四线', IF(yjinfo.JCD_Type = 11, '温度', IF(yjinfo.JCD_Type = 12, '湿度', if(yjinfo.JCD_Type = 13, '温度三相','其他')))))) monitoringPointTypeStr
+        FROM yj_info yjinfo
+        WHERE 1 = 1
+        AND yjinfo.mStatus != -2
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND yjinfo.JCD_AliasID= #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointCoreId!=null and monitoringPointCoreId!=''">
+            AND yjinfo.JCD_CoreID= #{monitoringPointCoreId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+            AND yjinfo.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yjinfo.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND yjinfo.DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEquipmentLongId!=null and ynBaseEquipmentLongId!=''">
+            AND yjinfo.SBTZ_id= #{ynBaseEquipmentLongId,jdbcType=VARCHAR}
+        </if>
+
+        ORDER BY yjinfo.DF_id,yjinfo.JCD_CoreID
+    </select>
+    <select id="selectCompanyByOnLineMonitoringDTO" resultType="java.util.LinkedHashMap">
+        SELECT DISTINCT
+        CAST(yi.YDQY_id AS CHAR) ynBaseCustomerEnterpriseLongId,
+        yi.YDQY_Name ynBaseCustomerEnterpriseName,
+        CAST(yi.WBGS_id AS CHAR) ynBaseStaffCompanyId,
+        yi.WBGS_Name ynBaseStaffCompanyName
+        FROM yj_info yi
+        WHERE yi.mStatus != -2
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yi.YDQY_id = #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND yi.DF_id = #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND yi.JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+    </select>
+    <select id="selectActivePowerByMonitoringObjectDTO" resultType="java.util.LinkedHashMap">
+        SELECT
+          jy.JCD_AliasID monitoringPointAliasId,
+          jy.JCD_CoreID monitoringPointCoreId,
+          jy.TO_0000 / 1 TO_0000,
+          jy.TO_0015 / 1 TO_0015,
+          jy.TO_0030 / 1 TO_0030,
+          jy.TO_0045 / 1 TO_0045,
+          jy.TO_0100 / 1 TO_0100,
+          jy.TO_0115 / 1 TO_0115,
+          jy.TO_0130 / 1 TO_0130,
+          jy.TO_0145 / 1 TO_0145,
+          jy.TO_0200 / 1 TO_0200,
+          jy.TO_0215 / 1 TO_0215,
+          jy.TO_0230 / 1 TO_0230,
+          jy.TO_0245 / 1 TO_0245,
+          jy.TO_0300 / 1 TO_0300,
+          jy.TO_0315 / 1 TO_0315,
+          jy.TO_0330 / 1 TO_0330,
+          jy.TO_0345 / 1 TO_0345,
+          jy.TO_0400 / 1 TO_0400,
+          jy.TO_0415 / 1 TO_0415,
+          jy.TO_0430 / 1 TO_0430,
+          jy.TO_0445 / 1 TO_0445,
+          jy.TO_0500 / 1 TO_0500,
+          jy.TO_0515 / 1 TO_0515,
+          jy.TO_0530 / 1 TO_0530,
+          jy.TO_0545 / 1 TO_0545,
+          jy.TO_0600 / 1 TO_0600,
+          jy.TO_0615 / 1 TO_0615,
+          jy.TO_0630 / 1 TO_0630,
+          jy.TO_0645 / 1 TO_0645,
+          jy.TO_0700 / 1 TO_0700,
+          jy.TO_0715 / 1 TO_0715,
+          jy.TO_0730 / 1 TO_0730,
+          jy.TO_0745 / 1 TO_0745,
+          jy.TO_0800 / 1 TO_0800,
+          jy.TO_0815 / 1 TO_0815,
+          jy.TO_0830 / 1 TO_0830,
+          jy.TO_0845 / 1 TO_0845,
+          jy.TO_0900 / 1 TO_0900,
+          jy.TO_0915 / 1 TO_0915,
+          jy.TO_0930 / 1 TO_0930,
+          jy.TO_0945 / 1 TO_0945,
+          jy.TO_1000 / 1 TO_1000,
+          jy.TO_1015 / 1 TO_1015,
+          jy.TO_1030 / 1 TO_1030,
+          jy.TO_1045 / 1 TO_1045,
+          jy.TO_1100 / 1 TO_1100,
+          jy.TO_1115 / 1 TO_1115,
+          jy.TO_1130 / 1 TO_1130,
+          jy.TO_1145 / 1 TO_1145,
+          jy.TO_1200 / 1 TO_1200,
+          jy.TO_1215 / 1 TO_1215,
+          jy.TO_1230 / 1 TO_1230,
+          jy.TO_1245 / 1 TO_1245,
+          jy.TO_1300 / 1 TO_1300,
+          jy.TO_1315 / 1 TO_1315,
+          jy.TO_1330 / 1 TO_1330,
+          jy.TO_1345 / 1 TO_1345,
+          jy.TO_1400 / 1 TO_1400,
+          jy.TO_1415 / 1 TO_1415,
+          jy.TO_1430 / 1 TO_1430,
+          jy.TO_1445 / 1 TO_1445,
+          jy.TO_1500 / 1 TO_1500,
+          jy.TO_1515 / 1 TO_1515,
+          jy.TO_1530 / 1 TO_1530,
+          jy.TO_1545 / 1 TO_1545,
+          jy.TO_1600 / 1 TO_1600,
+          jy.TO_1615 / 1 TO_1615,
+          jy.TO_1630 / 1 TO_1630,
+          jy.TO_1645 / 1 TO_1645,
+          jy.TO_1700 / 1 TO_1700,
+          jy.TO_1715 / 1 TO_1715,
+          jy.TO_1730 / 1 TO_1730,
+          jy.TO_1745 / 1 TO_1745,
+          jy.TO_1800 / 1 TO_1800,
+          jy.TO_1815 / 1 TO_1815,
+          jy.TO_1830 / 1 TO_1830,
+          jy.TO_1845 / 1 TO_1845,
+          jy.TO_1900 / 1 TO_1900,
+          jy.TO_1915 / 1 TO_1915,
+          jy.TO_1930 / 1 TO_1930,
+          jy.TO_1945 / 1 TO_1945,
+          jy.TO_2000 / 1 TO_2000,
+          jy.TO_2015 / 1 TO_2015,
+          jy.TO_2030 / 1 TO_2030,
+          jy.TO_2045 / 1 TO_2045,
+          jy.TO_2100 / 1 TO_2100,
+          jy.TO_2115 / 1 TO_2115,
+          jy.TO_2130 / 1 TO_2130,
+          jy.TO_2145 / 1 TO_2145,
+          jy.TO_2200 / 1 TO_2200,
+          jy.TO_2215 / 1 TO_2215,
+          jy.TO_2230 / 1 TO_2230,
+          jy.TO_2245 / 1 TO_2245,
+          jy.TO_2300 / 1 TO_2300,
+          jy.TO_2315 / 1 TO_2315,
+          jy.TO_2330 / 1 TO_2330,
+          jy.TO_2345 / 1 TO_2345,
+          ifnull(yi.EDRL,'') ratedCapacity
+        FROM ${tableNameString} jy left join yj_info yi on jy.JCD_CoreID=yi.JCD_CoreID
+        WHERE jy.YDQY_id =  #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        AND jy.DataDate = DATE_FORMAT(NOW(), '%Y%m%d')
+    </select>
+    <select id="selectMonitoringProtocol" resultType="java.util.LinkedHashMap">
+        SELECT
+          t.JCDCommID monitoringProtocolId,
+          t.JCDCommName monitoringProtocolName,
+          t.JCDCommDesc monitoringProtocolDesc
+        FROM yj_jcdcomm t
+    </select>
+    <select id="selectMonitoringMStatus" resultType="java.util.LinkedHashMap">
+        SELECT
+          '0' valueString,
+          '未生效' nameString
+        UNION ALL
+        SELECT
+          '1' valueString,
+          '已生效' nameString
+        UNION ALL
+        SELECT
+          '-1' valueString,
+          '通信异常' nameString
+    </select>
+    <select id="selectMonitoringInfoByType1" resultType="java.util.LinkedHashMap">
+        SELECT
+        <choose>
+            <when test="tableType == 'dd'">
+                <include refid="query_Dd_columns" />
+            </when>
+            <when test="tableType == 'sd'">
+                <include refid="query_Sd_columns" />
+            </when>
+            <when test="tableType == 'pl'">
+                <include refid="query_Sd_columns" />
+            </when>
+            <when test="tableType == 'gj'">
+                <include refid="query_Gj_columns" />
+            </when>
+            <otherwise>
+                <include refid="query_DlDySzWgYgYsPlWd_columns" />
+            </otherwise>
+        </choose>
+        FROM ${tableNameString} jd
+        WHERE 1=1
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND jd.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND jd.DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        AND jd.DataDate =#{dateString,jdbcType=VARCHAR}
+        <!--
+         AND jd.DF_id=#{ynBaseEnterpriseSubstationLongId}
+        AND jd.DataDate >= DATE_FORMAT(${startDate}, '%Y%m%d')
+        AND jd.DataDate &lt;= DATE_FORMAT(${endDate}, '%Y%m%d')
+        -->
+        <choose>
+            <when test="tableType == 'dd'">
+                ORDER BY jd.DF_id,jd.JCD_CoreID
+            </when>
+            <when test="tableType == 'sd'">
+                ORDER BY jd.DF_id,jd.JCD_CoreID
+            </when>
+            <when test="tableType == 'pl'">
+                ORDER BY jd.DF_id,jd.JCD_CoreID
+            </when>
+            <when test="tableType == 'gj'">
+                ORDER BY jd.createDate desc
+            </when>
+            <otherwise>
+                ORDER BY jd.DF_id,jd.JCD_CoreID
+            </otherwise>
+        </choose>
+
+    </select>
+    <!-- 用于select查询电度的查询字段  jd.TO_AVG,jd.TO_MIN,jd.TO_MIN_DATA_TAG,jd.TO_MIN_TIME_TAG,jd.TO_MAX,jd.TO_MAX_DATA_TAG,jd.TO_MAX_TIME_TAG,-->
+    <sql id="query_Dd_columns">
+         <![CDATA[
+          jd.idJC warningAutoIncrementId,
+          jd.JCD_AliasID monitoringPointAliasId,
+          jd.JCD_CoreID monitoringPointCoreId,
+          jd.JCD_id,
+          jd.JCD_Name monitoringPointName,
+          jd.JCD_Type monitoringPointType,
+          jd.DF_id ynBaseEnterpriseSubstationLongId,
+          jd.DF_Name ynBaseEnterpriseSubstationName,
+          jd.SBTZ_id ynBaseEquipmentLongId,
+          jd.SBTZ_Name ynBaseEquipmentLongName,
+          jd.YDQY_id ynBaseCustomerEnterpriseLongId,
+          jd.YDQY_Name ynBaseCustomerEnterpriseName,
+          jd.WBGS_id ynBaseStaffCompanyId,
+          jd.WBGS_Name ynBaseStaffCompanyName,
+          DATE_FORMAT(jd.createDate, '%Y-%m-%d %H:%i:%s') createDate,
+          jd.DataDate dataDate,
+          jd.TO_AVG,jd.TO_MIN,jd.TO_MIN_DATA_TAG,IF(LENGTH(jd.TO_MIN_TIME_TAG)=8,left(jd.TO_MIN_TIME_TAG,4),jd.TO_MIN_TIME_TAG) TO_MIN_TIME_TAG,jd.TO_MAX,jd.TO_MAX_DATA_TAG,IF(LENGTH(jd.TO_MAX_TIME_TAG)=8,left(jd.TO_MAX_TIME_TAG,4),jd.TO_MAX_TIME_TAG) TO_MAX_TIME_TAG,
+          jd.TO_Total,
+          jd.YS_Total,
+          jd.MT_Total,
+          jd.MY_Total,
+          jd.TO_PTotal,
+          jd.TO_FTotal,
+          jd.TO_GTotal,
+          jd.YS_PTotal,
+          jd.YS_FTotal,
+          jd.YS_GTotal,
+          jd.TO_SNumber,
+          TO_00000015,
+        TO_00150030,
+        TO_00300045,
+        TO_00450100,
+        TO_01000115,
+        TO_01150130,
+        TO_01300145,
+        TO_01450200,
+        TO_02000215,
+        TO_02150230,
+        TO_02300245,
+        TO_02450300,
+        TO_03000315,
+        TO_03150330,
+        TO_03300345,
+        TO_03450400,
+        TO_04000415,
+        TO_04150430,
+        TO_04300445,
+        TO_04450500,
+        TO_05000515,
+        TO_05150530,
+        TO_05300545,
+        TO_05450600,
+        TO_06000615,
+        TO_06150630,
+        TO_06300645,
+        TO_06450700,
+        TO_07000715,
+        TO_07150730,
+        TO_07300745,
+        TO_07450800,
+        TO_08000815,
+        TO_08150830,
+        TO_08300845,
+        TO_08450900,
+        TO_09000915,
+        TO_09150930,
+        TO_09300945,
+        TO_09451000,
+        TO_10001015,
+        TO_10151030,
+        TO_10301045,
+        TO_10451100,
+        TO_11001115,
+        TO_11151130,
+        TO_11301145,
+        TO_11451200,
+        TO_12001215,
+        TO_12151230,
+        TO_12301245,
+        TO_12451300,
+        TO_13001315,
+        TO_13151330,
+        TO_13301345,
+        TO_13451400,
+        TO_14001415,
+        TO_14151430,
+        TO_14301445,
+        TO_14451500,
+        TO_15001515,
+        TO_15151530,
+        TO_15301545,
+        TO_15451600,
+        TO_16001615,
+        TO_16151630,
+        TO_16301645,
+        TO_16451700,
+        TO_17001715,
+        TO_17151730,
+        TO_17301745,
+        TO_17451800,
+        TO_18001815,
+        TO_18151830,
+        TO_18301845,
+        TO_18451900,
+        TO_19001915,
+        TO_19151930,
+        TO_19301945,
+        TO_19452000,
+        TO_20002015,
+        TO_20152030,
+        TO_20302045,
+        TO_20452100,
+        TO_21002115,
+        TO_21152130,
+        TO_21302145,
+        TO_21452200,
+        TO_22002215,
+        TO_22152230,
+        TO_22302245,
+        TO_22452300,
+        TO_23002315,
+        TO_23152330,
+        TO_23302345,
+        TO_23452400
+	    ]]>
+    </sql>
+    <sql id="query_Dd_columns1">
+        <![CDATA[
+          jd.idJC warningAutoIncrementId,
+          jd.JCD_AliasID monitoringPointAliasId,
+          jd.JCD_CoreID monitoringPointCoreId,
+          jd.JCD_id,
+          jd.JCD_Name monitoringPointName,
+          jd.JCD_Type monitoringPointType,
+          jd.DF_id ynBaseEnterpriseSubstationLongId,
+          jd.DF_Name ynBaseEnterpriseSubstationName,
+          jd.SBTZ_id ynBaseEquipmentLongId,
+          jd.SBTZ_Name ynBaseEquipmentLongName,
+          jd.YDQY_id ynBaseCustomerEnterpriseLongId,
+          jd.YDQY_Name ynBaseCustomerEnterpriseName,
+          jd.WBGS_id ynBaseStaffCompanyId,
+          jd.WBGS_Name ynBaseStaffCompanyName,
+          DATE_FORMAT(jd.createDate, '%Y-%m-%d %H:%i:%s') createDate,
+          jd.DataDate dataDate,
+          jd.TO_AVG,jd.TO_MIN,jd.TO_MIN_DATA_TAG,jd.TO_MIN_TIME_TAG,jd.TO_MAX,jd.TO_MAX_DATA_TAG,jd.TO_MAX_TIME_TAG,
+          jd.DataDate,
+          jd.TO_Total,
+          jd.YS_Total,
+          jd.MT_Total,
+          jd.MY_Total,
+          jd.TO_PTotal,
+          jd.TO_FTotal,
+          jd.TO_GTotal,
+          jd.YS_PTotal,
+          jd.YS_FTotal,
+          jd.YS_GTotal,
+          jd.TO_SNumber,
+          jd.TO_00000100,
+          jd.TO_01000200,
+          jd.TO_02000300,
+          jd.TO_03000400,
+          jd.TO_04000500,
+          jd.TO_05000600,
+          jd.TO_06000700,
+          jd.TO_07000800,
+          jd.TO_08000900,
+          jd.TO_09001000,
+          jd.TO_10001100,
+          jd.TO_11001200,
+          jd.TO_12001300,
+          jd.TO_13001400,
+          jd.TO_14001500,
+          jd.TO_15001600,
+          jd.TO_16001700,
+          jd.TO_17001800,
+          jd.TO_18001900,
+          jd.TO_19002000,
+          jd.TO_20002100,
+          jd.TO_21002200,
+          jd.TO_22002300,
+          jd.TO_23002400
+	    ]]>
+    </sql>
+    <!--
+ jd.idJC,
+          jd.JCD_AliasID,
+          jd.JCD_CoreID,
+          jd.JCD_id,
+          jd.JCD_Name,
+          jd.JCD_Type,
+          jd.DF_id,
+          jd.DF_Name,
+          jd.SBTZ_id,
+          jd.SBTZ_Name,
+          jd.YDQY_id,
+          jd.YDQY_Name,
+          jd.WBGS_id,
+          jd.WBGS_Name,
+          jd.CreateDate,
+          jd.DataDate,
+          jd.GJ_Type,
+          jd.GJ_INFO,
+          jd.GJ_CLASSTYPE,
+          jd.mStatus,
+          jd.mUser,
+          jd.mDate
+-->
+    <!-- 用于select告警的查询字段-->
+    <sql id="query_Gj_columns">
+        <![CDATA[
+            jd.idJC warningAutoIncrementId,
+            jd.JCD_AliasID monitoringPointAliasId,
+            jd.JCD_CoreID monitoringPointCoreId,
+            jd.JCD_Name monitoringPointName,
+            jd.JCD_Type monitoringPointType,
+            jd.DF_id ynBaseEnterpriseSubstationLongId,
+            jd.DF_Name ynBaseEnterpriseSubstationName,
+            jd.SBTZ_id ynBaseEquipmentLongId,
+            jd.SBTZ_Name ynBaseEquipmentLongName,
+            jd.YDQY_id ynBaseCustomerEnterpriseLongId,
+            jd.YDQY_Name ynBaseCustomerEnterpriseName,
+            jd.WBGS_id ynBaseStaffCompanyId,
+            jd.WBGS_Name ynBaseStaffCompanyName,
+            DATE_FORMAT(jd.createDate, '%Y-%m-%d %H:%i:%s') createDate,
+            jd.dataDate dataDate,
+            jd.GJ_Type warningType,
+            jd.GJ_INFO warningInfo,
+            jd.GJ_CLASSTYPE warningClassType,
+            if(jd.GJ_CLASSTYPE=1,'一般',if(jd.GJ_CLASSTYPE=2,'中等',if(jd.GJ_CLASSTYPE=3,'严重','其他'))) warningClassTypeStr,
+            ifnull(jd.mStatus,'0') warningStatus,
+            IF(ifnull(jd.mStatus,0)=0,'未处理',IF(ifnull(jd.mStatus,0)=1,'已处理','其他')) warningStatusStr,
+            ifnull(jd.mUser,'') warningDealUser,
+            ifnull( DATE_FORMAT(jd.mDate, '%Y-%m-%d %H:%i:%s'),'') warningDealDate,
+            (CASE jd.mStatus WHEN 0 THEN ROUND(TIMESTAMPDIFF(SECOND, jd.createDate, NOW()) / 3600)END) AS roundIntHour
+	    ]]>
+    </sql>
+    <!-- 用于select湿度的查询字段-->
+    <sql id="query_Sd_columns">
+        <![CDATA[
+		jd.idJC warningAutoIncrementId,
+        jd.JCD_AliasID monitoringPointAliasId,
+        jd.JCD_CoreID monitoringPointCoreId,
+        jd.JCD_id,
+        jd.JCD_Name monitoringPointName,
+        jd.JCD_Type monitoringPointType,
+        jd.DF_id ynBaseEnterpriseSubstationLongId,
+        jd.DF_Name ynBaseEnterpriseSubstationName,
+        jd.SBTZ_id ynBaseEquipmentLongId,
+        jd.SBTZ_Name ynBaseEquipmentLongName,
+        jd.YDQY_id ynBaseCustomerEnterpriseLongId,
+        jd.YDQY_Name ynBaseCustomerEnterpriseName,
+        jd.WBGS_id ynBaseStaffCompanyId,
+        jd.WBGS_Name ynBaseStaffCompanyName,
+        DATE_FORMAT(jd.createDate, '%Y-%m-%d %H:%i:%s') createDate,
+        jd.DataDate dataDate,
+        jd.TO_AVG,jd.TO_MIN,jd.TO_MIN_DATA_TAG,jd.TO_MIN_TIME_TAG,jd.TO_MAX,jd.TO_MAX_DATA_TAG,jd.TO_MAX_TIME_TAG,
+        jd.TO_0000/${divisor} TO_0000,
+        jd.TO_0015/${divisor} TO_0015,
+        jd.TO_0030/${divisor} TO_0030,
+        jd.TO_0045/${divisor} TO_0045,
+        jd.TO_0100/${divisor} TO_0100,
+        jd.TO_0115/${divisor} TO_0115,
+        jd.TO_0130/${divisor} TO_0130,
+        jd.TO_0145/${divisor} TO_0145,
+        jd.TO_0200/${divisor} TO_0200,
+        jd.TO_0215/${divisor} TO_0215,
+        jd.TO_0230/${divisor} TO_0230,
+        jd.TO_0245/${divisor} TO_0245,
+        jd.TO_0300/${divisor} TO_0300,
+        jd.TO_0315/${divisor} TO_0315,
+        jd.TO_0330/${divisor} TO_0330,
+        jd.TO_0345/${divisor} TO_0345,
+        jd.TO_0400/${divisor} TO_0400,
+        jd.TO_0415/${divisor} TO_0415,
+        jd.TO_0430/${divisor} TO_0430,
+        jd.TO_0445/${divisor} TO_0445,
+        jd.TO_0500/${divisor} TO_0500,
+        jd.TO_0515/${divisor} TO_0515,
+        jd.TO_0530/${divisor} TO_0530,
+        jd.TO_0545/${divisor} TO_0545,
+        jd.TO_0600/${divisor} TO_0600,
+        jd.TO_0615/${divisor} TO_0615,
+        jd.TO_0630/${divisor} TO_0630,
+        jd.TO_0645/${divisor} TO_0645,
+        jd.TO_0700/${divisor} TO_0700,
+        jd.TO_0715/${divisor} TO_0715,
+        jd.TO_0730/${divisor} TO_0730,
+        jd.TO_0745/${divisor} TO_0745,
+        jd.TO_0800/${divisor} TO_0800,
+        jd.TO_0815/${divisor} TO_0815,
+        jd.TO_0830/${divisor} TO_0830,
+        jd.TO_0845/${divisor} TO_0845,
+        jd.TO_0900/${divisor} TO_0900,
+        jd.TO_0915/${divisor} TO_0915,
+        jd.TO_0930/${divisor} TO_0930,
+        jd.TO_0945/${divisor} TO_0945,
+        jd.TO_1000/${divisor} TO_1000,
+        jd.TO_1015/${divisor} TO_1015,
+        jd.TO_1030/${divisor} TO_1030,
+        jd.TO_1045/${divisor} TO_1045,
+        jd.TO_1100/${divisor} TO_1100,
+        jd.TO_1115/${divisor} TO_1115,
+        jd.TO_1130/${divisor} TO_1130,
+        jd.TO_1145/${divisor} TO_1145,
+        jd.TO_1200/${divisor} TO_1200,
+        jd.TO_1215/${divisor} TO_1215,
+        jd.TO_1230/${divisor} TO_1230,
+        jd.TO_1245/${divisor} TO_1245,
+        jd.TO_1300/${divisor} TO_1300,
+        jd.TO_1315/${divisor} TO_1315,
+        jd.TO_1330/${divisor} TO_1330,
+        jd.TO_1345/${divisor} TO_1345,
+        jd.TO_1400/${divisor} TO_1400,
+        jd.TO_1415/${divisor} TO_1415,
+        jd.TO_1430/${divisor} TO_1430,
+        jd.TO_1445/${divisor} TO_1445,
+        jd.TO_1500/${divisor} TO_1500,
+        jd.TO_1515/${divisor} TO_1515,
+        jd.TO_1530/${divisor} TO_1530,
+        jd.TO_1545/${divisor} TO_1545,
+        jd.TO_1600/${divisor} TO_1600,
+        jd.TO_1615/${divisor} TO_1615,
+        jd.TO_1630/${divisor} TO_1630,
+        jd.TO_1645/${divisor} TO_1645,
+        jd.TO_1700/${divisor} TO_1700,
+        jd.TO_1715/${divisor} TO_1715,
+        jd.TO_1730/${divisor} TO_1730,
+        jd.TO_1745/${divisor} TO_1745,
+        jd.TO_1800/${divisor} TO_1800,
+        jd.TO_1815/${divisor} TO_1815,
+        jd.TO_1830/${divisor} TO_1830,
+        jd.TO_1845/${divisor} TO_1845,
+        jd.TO_1900/${divisor} TO_1900,
+        jd.TO_1915/${divisor} TO_1915,
+        jd.TO_1930/${divisor} TO_1930,
+        jd.TO_1945/${divisor} TO_1945,
+        jd.TO_2000/${divisor} TO_2000,
+        jd.TO_2015/${divisor} TO_2015,
+        jd.TO_2030/${divisor} TO_2030,
+        jd.TO_2045/${divisor} TO_2045,
+        jd.TO_2100/${divisor} TO_2100,
+        jd.TO_2115/${divisor} TO_2115,
+        jd.TO_2130/${divisor} TO_2130,
+        jd.TO_2145/${divisor} TO_2145,
+        jd.TO_2200/${divisor} TO_2200,
+        jd.TO_2215/${divisor} TO_2215,
+        jd.TO_2230/${divisor} TO_2230,
+        jd.TO_2245/${divisor} TO_2245,
+        jd.TO_2300/${divisor} TO_2300,
+        jd.TO_2315/${divisor} TO_2315,
+        jd.TO_2330/${divisor} TO_2330,
+        jd.TO_2345/${divisor} TO_2345
+	    ]]>
+    </sql>
+    <!-- 用于select查询电流电压视在无功有功频率温度的查询字段-->
+    <sql id="query_DlDySzWgYgYsPlWd_columns">
+        <![CDATA[
+		jd.idJC warningAutoIncrementId,
+        jd.JCD_AliasID monitoringPointAliasId,
+        jd.JCD_CoreID monitoringPointCoreId,
+        jd.JCD_id,
+        jd.JCD_Name monitoringPointName,
+        jd.JCD_Type monitoringPointType,
+        jd.DF_id ynBaseEnterpriseSubstationLongId,
+        jd.DF_Name ynBaseEnterpriseSubstationName,
+        jd.SBTZ_id ynBaseEquipmentLongId,
+        jd.SBTZ_Name ynBaseEquipmentLongName,
+        jd.YDQY_id ynBaseCustomerEnterpriseLongId,
+        jd.YDQY_Name ynBaseCustomerEnterpriseName,
+        jd.WBGS_id ynBaseStaffCompanyId,
+        jd.WBGS_Name ynBaseStaffCompanyName,
+        DATE_FORMAT(jd.createDate, '%Y-%m-%d %H:%i:%s') createDate,
+        jd.DataDate dataDate,
+        jd.TO_AVG,jd.TO_MIN,jd.TO_MIN_DATA_TAG,jd.TO_MIN_TIME_TAG,jd.TO_MAX,jd.TO_MAX_DATA_TAG,jd.TO_MAX_TIME_TAG,jd.AX_AVG,jd.AX_MIN,jd.AX_MIN_DATA_TAG,jd.AX_MIN_TIME_TAG,jd.AX_MAX,jd.AX_MAX_DATA_TAG,jd.AX_MAX_TIME_TAG,jd.BX_AVG,jd.BX_MIN,jd.BX_MIN_DATA_TAG,jd.BX_MIN_TIME_TAG,jd.BX_MAX,jd.BX_MAX_DATA_TAG,jd.BX_MAX_TIME_TAG,jd.CX_AVG,jd.CX_MIN,jd.CX_MIN_DATA_TAG,jd.CX_MIN_TIME_TAG,jd.CX_MAX,jd.CX_MAX_DATA_TAG,jd.CX_MAX_TIME_TAG,
+        jd.TO_0000/${divisor} TO_0000,
+        jd.TO_0015/${divisor} TO_0015,
+        jd.TO_0030/${divisor} TO_0030,
+        jd.TO_0045/${divisor} TO_0045,
+        jd.TO_0100/${divisor} TO_0100,
+        jd.TO_0115/${divisor} TO_0115,
+        jd.TO_0130/${divisor} TO_0130,
+        jd.TO_0145/${divisor} TO_0145,
+        jd.TO_0200/${divisor} TO_0200,
+        jd.TO_0215/${divisor} TO_0215,
+        jd.TO_0230/${divisor} TO_0230,
+        jd.TO_0245/${divisor} TO_0245,
+        jd.TO_0300/${divisor} TO_0300,
+        jd.TO_0315/${divisor} TO_0315,
+        jd.TO_0330/${divisor} TO_0330,
+        jd.TO_0345/${divisor} TO_0345,
+        jd.TO_0400/${divisor} TO_0400,
+        jd.TO_0415/${divisor} TO_0415,
+        jd.TO_0430/${divisor} TO_0430,
+        jd.TO_0445/${divisor} TO_0445,
+        jd.TO_0500/${divisor} TO_0500,
+        jd.TO_0515/${divisor} TO_0515,
+        jd.TO_0530/${divisor} TO_0530,
+        jd.TO_0545/${divisor} TO_0545,
+        jd.TO_0600/${divisor} TO_0600,
+        jd.TO_0615/${divisor} TO_0615,
+        jd.TO_0630/${divisor} TO_0630,
+        jd.TO_0645/${divisor} TO_0645,
+        jd.TO_0700/${divisor} TO_0700,
+        jd.TO_0715/${divisor} TO_0715,
+        jd.TO_0730/${divisor} TO_0730,
+        jd.TO_0745/${divisor} TO_0745,
+        jd.TO_0800/${divisor} TO_0800,
+        jd.TO_0815/${divisor} TO_0815,
+        jd.TO_0830/${divisor} TO_0830,
+        jd.TO_0845/${divisor} TO_0845,
+        jd.TO_0900/${divisor} TO_0900,
+        jd.TO_0915/${divisor} TO_0915,
+        jd.TO_0930/${divisor} TO_0930,
+        jd.TO_0945/${divisor} TO_0945,
+        jd.TO_1000/${divisor} TO_1000,
+        jd.TO_1015/${divisor} TO_1015,
+        jd.TO_1030/${divisor} TO_1030,
+        jd.TO_1045/${divisor} TO_1045,
+        jd.TO_1100/${divisor} TO_1100,
+        jd.TO_1115/${divisor} TO_1115,
+        jd.TO_1130/${divisor} TO_1130,
+        jd.TO_1145/${divisor} TO_1145,
+        jd.TO_1200/${divisor} TO_1200,
+        jd.TO_1215/${divisor} TO_1215,
+        jd.TO_1230/${divisor} TO_1230,
+        jd.TO_1245/${divisor} TO_1245,
+        jd.TO_1300/${divisor} TO_1300,
+        jd.TO_1315/${divisor} TO_1315,
+        jd.TO_1330/${divisor} TO_1330,
+        jd.TO_1345/${divisor} TO_1345,
+        jd.TO_1400/${divisor} TO_1400,
+        jd.TO_1415/${divisor} TO_1415,
+        jd.TO_1430/${divisor} TO_1430,
+        jd.TO_1445/${divisor} TO_1445,
+        jd.TO_1500/${divisor} TO_1500,
+        jd.TO_1515/${divisor} TO_1515,
+        jd.TO_1530/${divisor} TO_1530,
+        jd.TO_1545/${divisor} TO_1545,
+        jd.TO_1600/${divisor} TO_1600,
+        jd.TO_1615/${divisor} TO_1615,
+        jd.TO_1630/${divisor} TO_1630,
+        jd.TO_1645/${divisor} TO_1645,
+        jd.TO_1700/${divisor} TO_1700,
+        jd.TO_1715/${divisor} TO_1715,
+        jd.TO_1730/${divisor} TO_1730,
+        jd.TO_1745/${divisor} TO_1745,
+        jd.TO_1800/${divisor} TO_1800,
+        jd.TO_1815/${divisor} TO_1815,
+        jd.TO_1830/${divisor} TO_1830,
+        jd.TO_1845/${divisor} TO_1845,
+        jd.TO_1900/${divisor} TO_1900,
+        jd.TO_1915/${divisor} TO_1915,
+        jd.TO_1930/${divisor} TO_1930,
+        jd.TO_1945/${divisor} TO_1945,
+        jd.TO_2000/${divisor} TO_2000,
+        jd.TO_2015/${divisor} TO_2015,
+        jd.TO_2030/${divisor} TO_2030,
+        jd.TO_2045/${divisor} TO_2045,
+        jd.TO_2100/${divisor} TO_2100,
+        jd.TO_2115/${divisor} TO_2115,
+        jd.TO_2130/${divisor} TO_2130,
+        jd.TO_2145/${divisor} TO_2145,
+        jd.TO_2200/${divisor} TO_2200,
+        jd.TO_2215/${divisor} TO_2215,
+        jd.TO_2230/${divisor} TO_2230,
+        jd.TO_2245/${divisor} TO_2245,
+        jd.TO_2300/${divisor} TO_2300,
+        jd.TO_2315/${divisor} TO_2315,
+        jd.TO_2330/${divisor} TO_2330,
+        jd.TO_2345/${divisor} TO_2345,
+        jd.AX_0000/${divisor} AX_0000,
+        jd.AX_0015/${divisor} AX_0015,
+        jd.AX_0030/${divisor} AX_0030,
+        jd.AX_0045/${divisor} AX_0045,
+        jd.AX_0100/${divisor} AX_0100,
+        jd.AX_0115/${divisor} AX_0115,
+        jd.AX_0130/${divisor} AX_0130,
+        jd.AX_0145/${divisor} AX_0145,
+        jd.AX_0200/${divisor} AX_0200,
+        jd.AX_0215/${divisor} AX_0215,
+        jd.AX_0230/${divisor} AX_0230,
+        jd.AX_0245/${divisor} AX_0245,
+        jd.AX_0300/${divisor} AX_0300,
+        jd.AX_0315/${divisor} AX_0315,
+        jd.AX_0330/${divisor} AX_0330,
+        jd.AX_0345/${divisor} AX_0345,
+        jd.AX_0400/${divisor} AX_0400,
+        jd.AX_0415/${divisor} AX_0415,
+        jd.AX_0430/${divisor} AX_0430,
+        jd.AX_0445/${divisor} AX_0445,
+        jd.AX_0500/${divisor} AX_0500,
+        jd.AX_0515/${divisor} AX_0515,
+        jd.AX_0530/${divisor} AX_0530,
+        jd.AX_0545/${divisor} AX_0545,
+        jd.AX_0600/${divisor} AX_0600,
+        jd.AX_0615/${divisor} AX_0615,
+        jd.AX_0630/${divisor} AX_0630,
+        jd.AX_0645/${divisor} AX_0645,
+        jd.AX_0700/${divisor} AX_0700,
+        jd.AX_0715/${divisor} AX_0715,
+        jd.AX_0730/${divisor} AX_0730,
+        jd.AX_0745/${divisor} AX_0745,
+        jd.AX_0800/${divisor} AX_0800,
+        jd.AX_0815/${divisor} AX_0815,
+        jd.AX_0830/${divisor} AX_0830,
+        jd.AX_0845/${divisor} AX_0845,
+        jd.AX_0900/${divisor} AX_0900,
+        jd.AX_0915/${divisor} AX_0915,
+        jd.AX_0930/${divisor} AX_0930,
+        jd.AX_0945/${divisor} AX_0945,
+        jd.AX_1000/${divisor} AX_1000,
+        jd.AX_1015/${divisor} AX_1015,
+        jd.AX_1030/${divisor} AX_1030,
+        jd.AX_1045/${divisor} AX_1045,
+        jd.AX_1100/${divisor} AX_1100,
+        jd.AX_1115/${divisor} AX_1115,
+        jd.AX_1130/${divisor} AX_1130,
+        jd.AX_1145/${divisor} AX_1145,
+        jd.AX_1200/${divisor} AX_1200,
+        jd.AX_1215/${divisor} AX_1215,
+        jd.AX_1230/${divisor} AX_1230,
+        jd.AX_1245/${divisor} AX_1245,
+        jd.AX_1300/${divisor} AX_1300,
+        jd.AX_1315/${divisor} AX_1315,
+        jd.AX_1330/${divisor} AX_1330,
+        jd.AX_1345/${divisor} AX_1345,
+        jd.AX_1400/${divisor} AX_1400,
+        jd.AX_1415/${divisor} AX_1415,
+        jd.AX_1430/${divisor} AX_1430,
+        jd.AX_1445/${divisor} AX_1445,
+        jd.AX_1500/${divisor} AX_1500,
+        jd.AX_1515/${divisor} AX_1515,
+        jd.AX_1530/${divisor} AX_1530,
+        jd.AX_1545/${divisor} AX_1545,
+        jd.AX_1600/${divisor} AX_1600,
+        jd.AX_1615/${divisor} AX_1615,
+        jd.AX_1630/${divisor} AX_1630,
+        jd.AX_1645/${divisor} AX_1645,
+        jd.AX_1700/${divisor} AX_1700,
+        jd.AX_1715/${divisor} AX_1715,
+        jd.AX_1730/${divisor} AX_1730,
+        jd.AX_1745/${divisor} AX_1745,
+        jd.AX_1800/${divisor} AX_1800,
+        jd.AX_1815/${divisor} AX_1815,
+        jd.AX_1830/${divisor} AX_1830,
+        jd.AX_1845/${divisor} AX_1845,
+        jd.AX_1900/${divisor} AX_1900,
+        jd.AX_1915/${divisor} AX_1915,
+        jd.AX_1930/${divisor} AX_1930,
+        jd.AX_1945/${divisor} AX_1945,
+        jd.AX_2000/${divisor} AX_2000,
+        jd.AX_2015/${divisor} AX_2015,
+        jd.AX_2030/${divisor} AX_2030,
+        jd.AX_2045/${divisor} AX_2045,
+        jd.AX_2100/${divisor} AX_2100,
+        jd.AX_2115/${divisor} AX_2115,
+        jd.AX_2130/${divisor} AX_2130,
+        jd.AX_2145/${divisor} AX_2145,
+        jd.AX_2200/${divisor} AX_2200,
+        jd.AX_2215/${divisor} AX_2215,
+        jd.AX_2230/${divisor} AX_2230,
+        jd.AX_2245/${divisor} AX_2245,
+        jd.AX_2300/${divisor} AX_2300,
+        jd.AX_2315/${divisor} AX_2315,
+        jd.AX_2330/${divisor} AX_2330,
+        jd.AX_2345/${divisor} AX_2345,
+        jd.BX_0000/${divisor} BX_0000,
+        jd.BX_0015/${divisor} BX_0015,
+        jd.BX_0030/${divisor} BX_0030,
+        jd.BX_0045/${divisor} BX_0045,
+        jd.BX_0100/${divisor} BX_0100,
+        jd.BX_0115/${divisor} BX_0115,
+        jd.BX_0130/${divisor} BX_0130,
+        jd.BX_0145/${divisor} BX_0145,
+        jd.BX_0200/${divisor} BX_0200,
+        jd.BX_0215/${divisor} BX_0215,
+        jd.BX_0230/${divisor} BX_0230,
+        jd.BX_0245/${divisor} BX_0245,
+        jd.BX_0300/${divisor} BX_0300,
+        jd.BX_0315/${divisor} BX_0315,
+        jd.BX_0330/${divisor} BX_0330,
+        jd.BX_0345/${divisor} BX_0345,
+        jd.BX_0400/${divisor} BX_0400,
+        jd.BX_0415/${divisor} BX_0415,
+        jd.BX_0430/${divisor} BX_0430,
+        jd.BX_0445/${divisor} BX_0445,
+        jd.BX_0500/${divisor} BX_0500,
+        jd.BX_0515/${divisor} BX_0515,
+        jd.BX_0530/${divisor} BX_0530,
+        jd.BX_0545/${divisor} BX_0545,
+        jd.BX_0600/${divisor} BX_0600,
+        jd.BX_0615/${divisor} BX_0615,
+        jd.BX_0630/${divisor} BX_0630,
+        jd.BX_0645/${divisor} BX_0645,
+        jd.BX_0700/${divisor} BX_0700,
+        jd.BX_0715/${divisor} BX_0715,
+        jd.BX_0730/${divisor} BX_0730,
+        jd.BX_0745/${divisor} BX_0745,
+        jd.BX_0800/${divisor} BX_0800,
+        jd.BX_0815/${divisor} BX_0815,
+        jd.BX_0830/${divisor} BX_0830,
+        jd.BX_0845/${divisor} BX_0845,
+        jd.BX_0900/${divisor} BX_0900,
+        jd.BX_0915/${divisor} BX_0915,
+        jd.BX_0930/${divisor} BX_0930,
+        jd.BX_0945/${divisor} BX_0945,
+        jd.BX_1000/${divisor} BX_1000,
+        jd.BX_1015/${divisor} BX_1015,
+        jd.BX_1030/${divisor} BX_1030,
+        jd.BX_1045/${divisor} BX_1045,
+        jd.BX_1100/${divisor} BX_1100,
+        jd.BX_1115/${divisor} BX_1115,
+        jd.BX_1130/${divisor} BX_1130,
+        jd.BX_1145/${divisor} BX_1145,
+        jd.BX_1200/${divisor} BX_1200,
+        jd.BX_1215/${divisor} BX_1215,
+        jd.BX_1230/${divisor} BX_1230,
+        jd.BX_1245/${divisor} BX_1245,
+        jd.BX_1300/${divisor} BX_1300,
+        jd.BX_1315/${divisor} BX_1315,
+        jd.BX_1330/${divisor} BX_1330,
+        jd.BX_1345/${divisor} BX_1345,
+        jd.BX_1400/${divisor} BX_1400,
+        jd.BX_1415/${divisor} BX_1415,
+        jd.BX_1430/${divisor} BX_1430,
+        jd.BX_1445/${divisor} BX_1445,
+        jd.BX_1500/${divisor} BX_1500,
+        jd.BX_1515/${divisor} BX_1515,
+        jd.BX_1530/${divisor} BX_1530,
+        jd.BX_1545/${divisor} BX_1545,
+        jd.BX_1600/${divisor} BX_1600,
+        jd.BX_1615/${divisor} BX_1615,
+        jd.BX_1630/${divisor} BX_1630,
+        jd.BX_1645/${divisor} BX_1645,
+        jd.BX_1700/${divisor} BX_1700,
+        jd.BX_1715/${divisor} BX_1715,
+        jd.BX_1730/${divisor} BX_1730,
+        jd.BX_1745/${divisor} BX_1745,
+        jd.BX_1800/${divisor} BX_1800,
+        jd.BX_1815/${divisor} BX_1815,
+        jd.BX_1830/${divisor} BX_1830,
+        jd.BX_1845/${divisor} BX_1845,
+        jd.BX_1900/${divisor} BX_1900,
+        jd.BX_1915/${divisor} BX_1915,
+        jd.BX_1930/${divisor} BX_1930,
+        jd.BX_1945/${divisor} BX_1945,
+        jd.BX_2000/${divisor} BX_2000,
+        jd.BX_2015/${divisor} BX_2015,
+        jd.BX_2030/${divisor} BX_2030,
+        jd.BX_2045/${divisor} BX_2045,
+        jd.BX_2100/${divisor} BX_2100,
+        jd.BX_2115/${divisor} BX_2115,
+        jd.BX_2130/${divisor} BX_2130,
+        jd.BX_2145/${divisor} BX_2145,
+        jd.BX_2200/${divisor} BX_2200,
+        jd.BX_2215/${divisor} BX_2215,
+        jd.BX_2230/${divisor} BX_2230,
+        jd.BX_2245/${divisor} BX_2245,
+        jd.BX_2300/${divisor} BX_2300,
+        jd.BX_2315/${divisor} BX_2315,
+        jd.BX_2330/${divisor} BX_2330,
+        jd.BX_2345/${divisor} BX_2345,
+        jd.CX_0000/${divisor} CX_0000,
+        jd.CX_0015/${divisor} CX_0015,
+        jd.CX_0030/${divisor} CX_0030,
+        jd.CX_0045/${divisor} CX_0045,
+        jd.CX_0100/${divisor} CX_0100,
+        jd.CX_0115/${divisor} CX_0115,
+        jd.CX_0130/${divisor} CX_0130,
+        jd.CX_0145/${divisor} CX_0145,
+        jd.CX_0200/${divisor} CX_0200,
+        jd.CX_0215/${divisor} CX_0215,
+        jd.CX_0230/${divisor} CX_0230,
+        jd.CX_0245/${divisor} CX_0245,
+        jd.CX_0300/${divisor} CX_0300,
+        jd.CX_0315/${divisor} CX_0315,
+        jd.CX_0330/${divisor} CX_0330,
+        jd.CX_0345/${divisor} CX_0345,
+        jd.CX_0400/${divisor} CX_0400,
+        jd.CX_0415/${divisor} CX_0415,
+        jd.CX_0430/${divisor} CX_0430,
+        jd.CX_0445/${divisor} CX_0445,
+        jd.CX_0500/${divisor} CX_0500,
+        jd.CX_0515/${divisor} CX_0515,
+        jd.CX_0530/${divisor} CX_0530,
+        jd.CX_0545/${divisor} CX_0545,
+        jd.CX_0600/${divisor} CX_0600,
+        jd.CX_0615/${divisor} CX_0615,
+        jd.CX_0630/${divisor} CX_0630,
+        jd.CX_0645/${divisor} CX_0645,
+        jd.CX_0700/${divisor} CX_0700,
+        jd.CX_0715/${divisor} CX_0715,
+        jd.CX_0730/${divisor} CX_0730,
+        jd.CX_0745/${divisor} CX_0745,
+        jd.CX_0800/${divisor} CX_0800,
+        jd.CX_0815/${divisor} CX_0815,
+        jd.CX_0830/${divisor} CX_0830,
+        jd.CX_0845/${divisor} CX_0845,
+        jd.CX_0900/${divisor} CX_0900,
+        jd.CX_0915/${divisor} CX_0915,
+        jd.CX_0930/${divisor} CX_0930,
+        jd.CX_0945/${divisor} CX_0945,
+        jd.CX_1000/${divisor} CX_1000,
+        jd.CX_1015/${divisor} CX_1015,
+        jd.CX_1030/${divisor} CX_1030,
+        jd.CX_1045/${divisor} CX_1045,
+        jd.CX_1100/${divisor} CX_1100,
+        jd.CX_1115/${divisor} CX_1115,
+        jd.CX_1130/${divisor} CX_1130,
+        jd.CX_1145/${divisor} CX_1145,
+        jd.CX_1200/${divisor} CX_1200,
+        jd.CX_1215/${divisor} CX_1215,
+        jd.CX_1230/${divisor} CX_1230,
+        jd.CX_1245/${divisor} CX_1245,
+        jd.CX_1300/${divisor} CX_1300,
+        jd.CX_1315/${divisor} CX_1315,
+        jd.CX_1330/${divisor} CX_1330,
+        jd.CX_1345/${divisor} CX_1345,
+        jd.CX_1400/${divisor} CX_1400,
+        jd.CX_1415/${divisor} CX_1415,
+        jd.CX_1430/${divisor} CX_1430,
+        jd.CX_1445/${divisor} CX_1445,
+        jd.CX_1500/${divisor} CX_1500,
+        jd.CX_1515/${divisor} CX_1515,
+        jd.CX_1530/${divisor} CX_1530,
+        jd.CX_1545/${divisor} CX_1545,
+        jd.CX_1600/${divisor} CX_1600,
+        jd.CX_1615/${divisor} CX_1615,
+        jd.CX_1630/${divisor} CX_1630,
+        jd.CX_1645/${divisor} CX_1645,
+        jd.CX_1700/${divisor} CX_1700,
+        jd.CX_1715/${divisor} CX_1715,
+        jd.CX_1730/${divisor} CX_1730,
+        jd.CX_1745/${divisor} CX_1745,
+        jd.CX_1800/${divisor} CX_1800,
+        jd.CX_1815/${divisor} CX_1815,
+        jd.CX_1830/${divisor} CX_1830,
+        jd.CX_1845/${divisor} CX_1845,
+        jd.CX_1900/${divisor} CX_1900,
+        jd.CX_1915/${divisor} CX_1915,
+        jd.CX_1930/${divisor} CX_1930,
+        jd.CX_1945/${divisor} CX_1945,
+        jd.CX_2000/${divisor} CX_2000,
+        jd.CX_2015/${divisor} CX_2015,
+        jd.CX_2030/${divisor} CX_2030,
+        jd.CX_2045/${divisor} CX_2045,
+        jd.CX_2100/${divisor} CX_2100,
+        jd.CX_2115/${divisor} CX_2115,
+        jd.CX_2130/${divisor} CX_2130,
+        jd.CX_2145/${divisor} CX_2145,
+        jd.CX_2200/${divisor} CX_2200,
+        jd.CX_2215/${divisor} CX_2215,
+        jd.CX_2230/${divisor} CX_2230,
+        jd.CX_2245/${divisor} CX_2245,
+        jd.CX_2300/${divisor} CX_2300,
+        jd.CX_2315/${divisor} CX_2315,
+        jd.CX_2330/${divisor} CX_2330,
+        jd.CX_2345/${divisor} CX_2345
+	    ]]>
+    </sql>
+    <!-- 用于select查询统计年份的表-->
+    <select id="selectMonitoringTJNFByObject" resultType="java.util.LinkedHashMap">
+        SELECT
+        t.idJC,t.JCD_AliasID,t.JCD_CoreID,t.JCD_id,t.JCD_Name,t.JCD_Type,t.Tj_Type,
+        IF(t.Tj_Type='dd','电度',IF(t.Tj_Type='dl','电流',IF(t.Tj_Type='dy','电压',IF(t.Tj_Type='pl','频率',IF(t.Tj_Type='sz','视在功率',IF(t.Tj_Type='wg','无功功率'
+        ,IF(t.Tj_Type='yg','有功功率',IF(t.Tj_Type='wd','温度',IF(t.Tj_Type='sd','湿度',IF(t.Tj_Type='gj','告警',IF(t.Tj_Type='ys','功率因数','其他'))))))))))) Tj_Type_Str,t.DF_id,t.DF_Name,
+        t.SBTZ_id,t.SBTZ_Name,t.YDQY_id,t.YDQY_Name,t.WBGS_id,t.WBGS_Name,t.CreateDate,t.DataDate,
+        t.TO_AVG,t.TO_MIN,t.TO_MIN_DATA_TAG,IF(LENGTH(t.TO_MIN_TIME_TAG)=8,left(t.TO_MIN_TIME_TAG,4),t.TO_MIN_TIME_TAG) TO_MIN_TIME_TAG,t.TO_MAX,t.TO_MAX_DATA_TAG,IF(LENGTH(t.TO_MAX_TIME_TAG)=8,left(t.TO_MAX_TIME_TAG,4),t.TO_MAX_TIME_TAG) TO_MAX_TIME_TAG,
+        t.AX_AVG,t.AX_MIN,t.AX_MIN_DATA_TAG,IF(LENGTH(t.AX_MIN_TIME_TAG)=8,left(t.AX_MIN_TIME_TAG,4),t.AX_MIN_TIME_TAG) AX_MIN_TIME_TAG,t.AX_MAX,t.AX_MAX_DATA_TAG,IF(LENGTH(t.AX_MAX_TIME_TAG)=8,left(t.AX_MAX_TIME_TAG,4),t.AX_MAX_TIME_TAG) AX_MAX_TIME_TAG,
+        t.BX_AVG,t.BX_MIN,t.BX_MIN_DATA_TAG,IF(LENGTH(t.BX_MIN_TIME_TAG)=8,left(t.BX_MIN_TIME_TAG,4),t.BX_MIN_TIME_TAG) BX_MIN_TIME_TAG,t.BX_MAX,t.BX_MAX_DATA_TAG,IF(LENGTH(t.BX_MAX_TIME_TAG)=8,left(t.BX_MAX_TIME_TAG,4),t.BX_MAX_TIME_TAG) BX_MAX_TIME_TAG,
+        t.CX_AVG,t.CX_MIN,t.CX_MIN_DATA_TAG,IF(LENGTH(t.CX_MIN_TIME_TAG)=8,left(t.CX_MIN_TIME_TAG,4),t.CX_MIN_TIME_TAG) CX_MIN_TIME_TAG,t.CX_MAX,t.CX_MAX_DATA_TAG,IF(LENGTH(t.CX_MAX_TIME_TAG)=8,left(t.CX_MAX_TIME_TAG,4),t.CX_MAX_TIME_TAG) CX_MAX_TIME_TAG,
+        t.TO_01,t.TO_02,t.TO_03,t.TO_04,t.TO_05,t.TO_06,t.TO_07,t.TO_08,t.TO_09,t.TO_10,t.TO_11,t.TO_12,
+        t.AX_01,t.AX_02,t.AX_03,t.AX_04,t.AX_05,t.AX_06,t.AX_07,t.AX_08,t.AX_09,t.AX_10,t.AX_11,t.AX_12,
+        t.BX_01,t.BX_02,t.BX_03,t.BX_04,t.BX_05,t.BX_06,t.BX_07,t.BX_08,t.BX_09,t.BX_10,t.BX_11,t.BX_12,
+        t.CX_01,t.CX_02,t.CX_03,t.CX_04,t.CX_05,t.CX_06,t.CX_07,t.CX_08,t.CX_09,t.CX_10,t.CX_11,t.CX_12
+        FROM ${tableNameString} t
+        WHERE 1=1
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND t.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND t.DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND t.JCD_AliasID= #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEquipmentLongId!=null and ynBaseEquipmentLongId!=''">
+            AND t.SBTZ_id= #{ynBaseEquipmentLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+            AND t.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        </if>
+        AND t.DataDate=#{dateString}
+        ORDER BY t.DF_id,t.JCD_CoreID
+    </select>
+    <!-- 用于select查询统计月份的表-->
+    <select id="selectMonitoringTJYFByObject" resultType="java.util.LinkedHashMap">
+        SELECT
+        t.idJC,t.JCD_AliasID,t.JCD_CoreID,t.JCD_id,t.JCD_Name,t.JCD_Type,t.Tj_Type,
+        IF(t.Tj_Type='dd','电度',IF(t.Tj_Type='dl','电流',IF(t.Tj_Type='dy','电压',IF(t.Tj_Type='pl','频率',IF(t.Tj_Type='sz','视在功率',IF(t.Tj_Type='wg','无功功率'
+        ,IF(t.Tj_Type='yg','有功功率',IF(t.Tj_Type='wd','温度',IF(t.Tj_Type='sd','湿度',IF(t.Tj_Type='gj','告警',IF(t.Tj_Type='ys','功率因数','其他'))))))))))) Tj_Type_Str,
+        t.DF_id,t.DF_Name,t.SBTZ_id,t.SBTZ_Name,t.YDQY_id,t.YDQY_Name,t.WBGS_id,
+        t.WBGS_Name,t.YF_Days,t.CreateDate,t.DataDate,
+        t.TO_AVG,t.TO_MIN,t.TO_MIN_DATA_TAG,IF(LENGTH(t.TO_MIN_TIME_TAG)=8,left(t.TO_MIN_TIME_TAG,4),t.TO_MIN_TIME_TAG) TO_MIN_TIME_TAG,t.TO_MAX,t.TO_MAX_DATA_TAG,IF(LENGTH(t.TO_MAX_TIME_TAG)=8,left(t.TO_MAX_TIME_TAG,4),t.TO_MAX_TIME_TAG) TO_MAX_TIME_TAG,
+        t.AX_AVG,t.AX_MIN,t.AX_MIN_DATA_TAG,IF(LENGTH(t.AX_MIN_TIME_TAG)=8,left(t.AX_MIN_TIME_TAG,4),t.AX_MIN_TIME_TAG) AX_MIN_TIME_TAG,t.AX_MAX,t.AX_MAX_DATA_TAG,IF(LENGTH(t.AX_MAX_TIME_TAG)=8,left(t.AX_MAX_TIME_TAG,4),t.AX_MAX_TIME_TAG) AX_MAX_TIME_TAG,
+        t.BX_AVG,t.BX_MIN,t.BX_MIN_DATA_TAG,IF(LENGTH(t.BX_MIN_TIME_TAG)=8,left(t.BX_MIN_TIME_TAG,4),t.BX_MIN_TIME_TAG) BX_MIN_TIME_TAG,t.BX_MAX,t.BX_MAX_DATA_TAG,IF(LENGTH(t.BX_MAX_TIME_TAG)=8,left(t.BX_MAX_TIME_TAG,4),t.BX_MAX_TIME_TAG) BX_MAX_TIME_TAG,
+        t.CX_AVG,t.CX_MIN,t.CX_MIN_DATA_TAG,IF(LENGTH(t.CX_MIN_TIME_TAG)=8,left(t.CX_MIN_TIME_TAG,4),t.CX_MIN_TIME_TAG) CX_MIN_TIME_TAG,t.CX_MAX,t.CX_MAX_DATA_TAG,IF(LENGTH(t.CX_MAX_TIME_TAG)=8,left(t.CX_MAX_TIME_TAG,4),t.CX_MAX_TIME_TAG) CX_MAX_TIME_TAG,
+        t.TO_01,t.TO_02,t.TO_03,t.TO_04,t.TO_05,t.TO_06,t.TO_07,t.TO_08,t.TO_09,t.TO_10,t.TO_11,t.TO_12,t.TO_13,t.TO_14,t.TO_15,
+        t.TO_16,t.TO_17,t.TO_18,t.TO_19,t.TO_20,t.TO_21,t.TO_22,t.TO_23,t.TO_24,t.TO_25,t.TO_26,t.TO_27,t.TO_28,t.TO_29,t.TO_30,t.TO_31,
+        t.AX_01,t.AX_02,t.AX_03,t.AX_04,t.AX_05,t.AX_06,t.AX_07,t.AX_08,t.AX_09,t.AX_10,t.AX_11,t.AX_12,t.AX_13,t.AX_14,t.AX_15,
+        t.AX_16,t.AX_17,t.AX_18,t.AX_19,t.AX_20,t.AX_21,t.AX_22,t.AX_23,t.AX_24,t.AX_25,t.AX_26,t.AX_27,t.AX_28,t.AX_29,t.AX_30,t.AX_31,
+        t.BX_01,t.BX_02,t.BX_03,t.BX_04,t.BX_05,t.BX_06,t.BX_07,t.BX_08,t.BX_09,t.BX_10,t.BX_11,t.BX_12,t.BX_13,t.BX_14,t.BX_15,
+        t.BX_16,t.BX_17,t.BX_18,t.BX_19,t.BX_20,t.BX_21,t.BX_22,t.BX_23,t.BX_24,t.BX_25,t.BX_26,t.BX_27,t.BX_28,t.BX_29,t.BX_30,t.BX_31,
+        t.CX_01,t.CX_02,t.CX_03,t.CX_04,t.CX_05,t.CX_06,t.CX_07,t.CX_08,t.CX_09,t.CX_10,t.CX_11,t.CX_12,t.CX_13,t.CX_14,t.CX_15,
+        t.CX_16,t.CX_17,t.CX_18,t.CX_19,t.CX_20,t.CX_21,t.CX_22,t.CX_23,t.CX_24,t.CX_25,t.CX_26,t.CX_27,t.CX_28,t.CX_29,t.CX_30,t.CX_31
+        FROM ${tableNameString} t
+        WHERE 1=1
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND t.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND t.DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND t.JCD_AliasID= #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEquipmentLongId!=null and ynBaseEquipmentLongId!=''">
+            AND t.SBTZ_id= #{ynBaseEquipmentLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+            AND t.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        </if>
+        AND t.DataDate=#{dateString}
+        ORDER BY t.DF_id,t.JCD_CoreID
+    </select>
+    <select id="getMonitoringWarningListByObject" resultType="java.util.LinkedHashMap">
+        SELECT
+        idJC warningAutoIncrementId,
+        JCD_AliasID monitoringPointAliasId,
+        JCD_CoreID monitoringPointCoreId,
+        JCD_Name monitoringPointName,
+        JCD_Type monitoringPointType,
+        DF_id ynBaseEnterpriseSubstationLongId,
+        DF_Name ynBaseEnterpriseSubstationName,
+        SBTZ_id ynBaseEquipmentLongId,
+        SBTZ_Name ynBaseEquipmentLongName,
+        YDQY_id ynBaseCustomerEnterpriseLongId,
+        YDQY_Name ynBaseCustomerEnterpriseName,
+        WBGS_id ynBaseStaffCompanyId,
+        WBGS_Name ynBaseStaffCompanyName,
+        DATE_FORMAT(createDate, '%Y-%m-%d %H:%i:%s') createDate,
+        dataDate dataDate,
+        GJ_Type warningType,
+        GJ_INFO warningInfo,
+        GJ_CLASSTYPE warningClassType,
+        if(GJ_CLASSTYPE=1,'一般',if(GJ_CLASSTYPE=2,'中等',if(GJ_CLASSTYPE=3,'严重','其他'))) warningClassTypeStr,
+        ifnull(mStatus,'0') warningStatus,
+        IF(ifnull(mStatus,0)=0,'未处理',IF(ifnull(mStatus,0)=1,'已处理','其他')) warningStatusStr,
+        ifnull(mUser,'') warningDealUser,
+        ifnull( DATE_FORMAT(mDate, '%Y-%m-%d %H:%i:%s'),'') warningDealDate,
+        (CASE mStatus WHEN 0 THEN ROUND(TIMESTAMPDIFF(SECOND, createDate, NOW()) / 3600)
+        END) AS roundIntHour
+        FROM ${tableNameString}
+        WHERE 1=1
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND DF_id= #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <choose>
+            <when test="day!=null and day!=''">
+                AND dataDate = #{dateString}
+            </when>
+            <when test="month!=null and month!=''">
+                AND DATE_FORMAT(dataDate,'%Y%m')=#{dateString}
+            </when>
+            <otherwise>
+                AND YEAR(DataDate)=#{dateString}
+            </otherwise>
+        </choose>
+        ORDER BY CreateDate desc
+        limit 200
+    </select>
+    <select id="selectWarningConfigByObject" resultType="java.util.LinkedHashMap" >
+    SELECT
+      tt.jcdCoreId monitoringPointCoreId,
+      tt.warningType,
+      IF(tt.warningType = 'DY', '电压', IF(tt.warningType = 'DL', '电流', IF(tt.warningType = 'GL', '功率', IF(tt.warningType = 'QX', '缺相', IF(tt.warningType = 'WD', '温度', IF(tt.warningType = 'SD', '湿度',IF(tt.warningType = 'YS', '因数', '其他'))))))) warningTypeStr,
+      tt.warningStatus,
+      tt.warningValue,
+      tt.warningUnit,
+      tt.ratedValue,
+      tt.existsRatedValue
+    FROM (SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 1) warningType,
+        fsplit(yi.GJ_StatusList, ',', 1) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 1) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 1) warningUnit,
+        yi.EDDY ratedValue,
+        '1' existsRatedValue,
+        '1' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{monitoringPointAliasId}
+      AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 2) warningType,
+        fsplit(yi.GJ_StatusList, ',', 2) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 2) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 2) warningUnit,
+        yi.EDDL ratedValue,
+        '1' existsRatedValue,
+        '2' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{monitoringPointAliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 3) warningType,
+        fsplit(yi.GJ_StatusList, ',', 3) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 3) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 3) warningUnit,
+        yi.EDRL ratedValue,
+         '1' existsRatedValue,
+        '3' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{monitoringPointAliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 4) warningType,
+        fsplit(yi.GJ_StatusList, ',', 4) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 4) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 4) warningUnit,
+        '' ratedValue,
+        '0' existsRatedValue,
+        '4' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{monitoringPointAliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 5) warningType,
+        fsplit(yi.GJ_StatusList, ',', 5) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 5) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 5) warningUnit,
+        yi.EDWD ratedValue,
+        '1' existsRatedValue,
+        '5' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{monitoringPointAliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 6) warningType,
+        fsplit(yi.GJ_StatusList, ',', 6) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 6) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 6) warningUnit,
+        yi.EDSD ratedValue,
+        '1' existsRatedValue,
+        '6' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{monitoringPointAliasId}
+    AND yi.mStatus!=-2
+       UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 7) warningType,
+        fsplit(yi.GJ_StatusList, ',',7) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 7) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 7) warningUnit,
+        '' ratedValue,
+        '0' existsRatedValue,
+        '7' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{monitoringPointAliasId}
+    AND yi.mStatus!=-2
+    ) tt ORDER BY tt.orderInt
+    </select>
+    <select id="selectDTUMsgByEterpriseId" resultType="java.util.LinkedHashMap">
+        SELECT
+          yd.DTUCoreID monitoringSimCardInnerNo, -- dtu机器码
+          yd.DTUName monitoringSimCardInnerName, -- dtu名称
+          yd.DTUSimCardNO monitoringSimCardNo,  -- dtu手机号码
+          yd.DTUType monitoringSimCardInnerType,  -- dtu类型id
+          (select yd1.DTUTypeDesc FROM yj_dtutype yd1 WHERE yd1.DTUTypeId=yd.DTUType) monitoringSimCardInnerName
+        FROM yj_dtu yd
+        WHERE yd.YDQY_id = #{ynBaseCustomerEnterpriseLongId}
+    </select>
+    <select id="selectOperationDateByEnterpriseOrSubstationOrEquipmentOrMonitoring"
+            resultType="java.util.LinkedHashMap">
+
+    </select>
+    <select id="selectCountMonitringAndEnterprise" resultType="java.util.LinkedHashMap">
+        SELECT COUNT(tt.YDQY_id)countYnBaseStaffCompanyId,(
+        SELECT COUNT(1) FROM yj_info yi1 where yi1.WBGS_id=#{ynBaseStaffCompanyId} AND yi1.mStatus!=-2
+        ) countYnBaseStaffCompanyMonitoring  FROM (
+        SELECT DISTINCT yi.YDQY_id FROM yj_info yi where yi.WBGS_id=#{ynBaseStaffCompanyId} AND yi.mStatus!=-2
+      )tt
+    </select>
+
+    <select id="selectCountMonitringAndSubstation" resultType="java.util.LinkedHashMap">
+     SELECT COUNT(tt.DF_id) countYnBaseEnterpriseSubstationid,
+      (
+        SELECT COUNT(1) FROM yj_info yi1 where yi1.YDQY_id=#{ynBaseCustomerEnterpriseLongId} AND yi1.mStatus!=-2
+       ) countYnBaseEnterpriseSubstationMonitoring
+      FROM (
+     SELECT DISTINCT yi.DF_id FROM yj_info yi where yi.YDQY_id=#{ynBaseCustomerEnterpriseLongId} AND yi.mStatus!=-2
+      ) tt
+    </select>
+    <select id="selectElectricAnalysisByEnterpriseLongId" resultType="java.util.LinkedHashMap">
+        <!--
+        SELECT
+        CONVERT(SUM(DD.TO_Total),decimal(10,2)) todayTotalSUM,
+        CONVERT(SUM(DD.YS_Total),decimal(10,2)) yestodayTotalSUM,
+        CONCAT(ABS(CONVERT(100*(SUM(DD.TO_Total)-SUM(DD.YS_Total))/SUM(DD.YS_Total),decimal(10,2))),'%') dayGrowthRateSUM,
+        IF(CONVERT(100*(SUM(DD.TO_Total)-SUM(DD.YS_Total))/SUM(DD.YS_Total),decimal(10,2)) IS NULL ,NULL,IF(CONVERT(100*(SUM(DD.TO_Total)-SUM(DD.YS_Total))/SUM(DD.YS_Total),decimal(10,2))>0,"1",IF(CONVERT(100*(SUM(DD.TO_Total)-SUM(DD.YS_Total))/SUM(DD.YS_Total),decimal(10,2))&lt; 0,'-1','0'))) dayGrowthRateStateSUM,
+        CONVERT(SUM(DD.MT_Total),decimal(10,2)) currentMonthTotalSUM,
+        CONVERT(SUM(DD.MY_Total),decimal(10,2)) LastMonthTotalSUM,
+        CONCAT(ABS(CONVERT(100*(SUM(DD.MT_Total)-SUM(DD.MY_Total))/SUM(DD.MY_Total),decimal(10,2))),'%') monthGrowthRateSUM,
+        IF(CONVERT(100*(SUM(DD.MT_Total)-SUM(DD.MY_Total))/SUM(DD.MY_Total),decimal(10,2)) IS NULL ,NULL,IF(CONVERT(100*(SUM(DD.MT_Total)-SUM(DD.MY_Total))/SUM(DD.MY_Total),decimal(10,2))>0,"1",IF(CONVERT(100*(SUM(DD.MT_Total)-SUM(DD.MY_Total))/SUM(DD.MY_Total),decimal(10,2))&lt;0,'-1','0')))  monthGrowthRateStateSUM
+        -->
+        SELECT
+        IFNULL(CONVERT(SUM(DD.TO_Total), decimal(10, 2)),'0') todayTotalSUM,
+        IFNULL(CONVERT(SUM(DD.YS_Total), decimal(10, 2)),'0') yestodayTotalSUM,
+        IFNULL(CONCAT(ABS(CONVERT(100 * (SUM(DD.TO_Total) - SUM(DD.YS_Total)) / SUM(DD.YS_Total), decimal(10, 2))), '%'),'-') dayGrowthRateSUM,
+        IFNULL(IF(CONVERT(100 * (SUM(DD.TO_Total) - SUM(DD.YS_Total)) / SUM(DD.YS_Total), decimal(10, 2)) IS NULL, '-', IF(CONVERT(100 * (SUM(DD.TO_Total) - SUM(DD.YS_Total)) / SUM(DD.YS_Total), decimal(10, 2)) > 0, "1", IF(CONVERT(100 * (SUM(DD.TO_Total) - SUM(DD.YS_Total)) / SUM(DD.YS_Total), decimal(10, 2)) &lt;  0, '-1', '0'))),'0') dayGrowthRateStateSUM,
+        IFNULL(CONVERT(SUM(DD.MT_Total), decimal(10, 2)),'0') currentMonthTotalSUM,
+        IFNULL(CONVERT(SUM(DD.MY_Total), decimal(10, 2)),'0') LastMonthTotalSUM,
+        IFNULL(CONCAT(ABS(CONVERT(100 * (SUM(DD.MT_Total) - SUM(DD.MY_Total)) / SUM(DD.MY_Total), decimal(10, 2))), '%'),'-') monthGrowthRateSUM,
+        IFNULL(IF(CONVERT(100 * (SUM(DD.MT_Total) - SUM(DD.MY_Total)) / SUM(DD.MY_Total), decimal(10, 2)) IS NULL, '-', IF(CONVERT(100 * (SUM(DD.MT_Total) - SUM(DD.MY_Total)) / SUM(DD.MY_Total), decimal(10, 2)) > 0, "1", IF(CONVERT(100 * (SUM(DD.MT_Total) - SUM(DD.MY_Total)) / SUM(DD.MY_Total), decimal(10, 2)) &lt;  0, '-1', '0'))),'0') monthGrowthRateStateSUM
+        FROM ${tableNameString} DD
+        WHERE 1=1
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND DD.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="dateString!=null and dateString!=''">
+            AND DD.DataDate= #{dateString,jdbcType=VARCHAR}
+        </if>
+        <if test="dateString==null or dateString==''">
+            AND DD.DataDate= DATE_FORMAT(NOW(),'%Y%m%d')
+        </if>
+    </select>
+
+
+</mapper>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.AppLoginMapper" >
+    <resultMap id="loginAppMap" type="pw.wechatbrother.base.dto.LoginAppDTO">
+        <result column="userName" jdbcType="VARCHAR" property="userName" />
+        <result column="password" jdbcType="VARCHAR" property="password" />
+        <result column="userid" jdbcType="VARCHAR" property="userid" />
+        <result column="userid" jdbcType="VARCHAR" property="lock" />
+        <result column="keyStr" jdbcType="VARCHAR" property="key" />
+        <result column="lastLoginTime" jdbcType="VARCHAR" property="lastLoginTime" />
+    </resultMap>
+    <update id="updateLockAndKeyByUserName" parameterType="pw.wechatbrother.base.dto.LoginAppDTO">
+        UPDATE yn_user yu
+        SET yu.lock_str = #{lock,jdbcType=VARCHAR},
+            yu.key_str = #{key,jdbcType=VARCHAR},
+            yu.last_login_time = #{lastLoginTime,jdbcType=TIMESTAMP}
+        WHERE yu.username =#{userName,jdbcType=VARCHAR}
+        AND yu.remove_tag = 1
+    </update>
+
+    <!-- <select id="select" parameterType="java.lang.String" resultMap="BaseResultMap">
+         SELECT  s.username from tbl_sys_user s
+         where s.id = #{userId,jdbcType=VARCHAR}
+     </select>-->
+    <select id="selectUsersByUserName" resultMap="loginAppMap" parameterType="java.util.Map">
+        SELECT
+          yu.username userName,
+          yu.password password,
+          yu.id userid,
+          yu.lock_str lockStr,
+          yu.key_str keyStr,
+          DATE_FORMAT(yu.last_login_time,'%Y-%m-%d %H:%i:%s') lastLoginTime
+        FROM yn_user yu
+        WHERE yu.username = #{userName,jdbcType=VARCHAR}
+          and yu.remove_tag=1
+    </select>
+    <select id="selectUserByUUID" resultType="pw.wechatbrother.base.dto.LoginAppDTO">
+         SELECT
+              yu.userName userName,
+              yu.password password,
+              yu.id userid,
+              yu.lock_str lockStr,
+              yu.key_str keyStr,
+              DATE_FORMAT(yu.last_login_time, '%Y-%m-%d %H:%i:%s') lastLoginTime
+            FROM yn_user yu
+            WHERE 1 = 1
+            AND yu.key_str =#{uuid,jdbcType=VARCHAR}
+    </select>
+
+
+</mapper>

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.JsTreeMapper">
+
+    <!-- 查询监测点id,监测点名称,监测点所在的电房id封装成JsTree -->
+    <select id="findMonitoringAndElectrical" resultType="java.util.Map">
+        SELECT JCD_AliasID JCDAliasID,SBTZ_id SBTZId,DF_id DFid,JCD_Type JCDType,JCD_Name JCDName FROM yj_info WHERE WBGS_id=#{companyId} AND mStatus in(-1,1) ORDER BY SBTZ_id,JCD_CoreID
+    </select>
+
+    <!-- 查询电房id,电房名称,用电企业id,封装成JsTree -->
+    <select id="findElectricalAndEnterprise" resultType="java.util.Map">
+        SELECT DISTINCT DF_id DFid,DF_Name DFName,YDQY_id YDQYid FROM yj_info WHERE WBGS_id=#{companyId} AND mStatus in(-1,1) ORDER BY SBTZ_id,JCD_CoreID
+    </select>
+
+    <!-- 查询用电企业id,用电企业名称,#,封装成JsTree -->
+    <select id="findEnterpriseNode" resultType="java.util.Map">
+          SELECT DISTINCT YDQY_id YDQYid,YDQY_Name YDQYName FROM yj_info WHERE WBGS_id=#{companyId} AND mStatus in(-1,1) ORDER BY SBTZ_id,JCD_CoreID
+    </select>
+
+
+
+
+
+
+
+
+    <!-- 查询监测点id,监测点名称,监测点所在的电房id封装成JsTree -->
+    <select id="findMonitoringAndElectricalByEnterprise" resultType="java.util.Map">
+        SELECT JCD_AliasID JCDAliasID,SBTZ_id SBTZId,DF_id DFid,JCD_Type JCDType,JCD_Name JCDName FROM yj_info WHERE YDQY_id=#{enterpriseId}
+    </select>
+
+    <!-- 查询电房id,电房名称,用电企业id,封装成JsTree -->
+    <select id="findElectricalAndEnterpriseByEnterprise" resultType="java.util.Map">
+        SELECT DISTINCT DF_id DFid,DF_Name DFName,YDQY_id YDQYid FROM yj_info WHERE YDQY_id=#{enterpriseId}
+    </select>
+
+    <!-- 查询用电企业id,用电企业名称,#,封装成JsTree -->
+    <select id="findEnterpriseNodeByEnterprise" resultType="java.util.Map">
+          SELECT DISTINCT YDQY_id YDQYid,YDQY_Name YDQYName FROM yj_info WHERE YDQY_id=#{enterpriseId}
+    </select>
+
+
+</mapper>

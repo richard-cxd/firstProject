@@ -1,0 +1,542 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.YnBaseMapper" >
+  <!--  <resultMap id="BaseResultMap" type="pw.wechatbrother.base.domain.UserD">
+        <result column="username" jdbcType="VARCHAR" property="username" />
+    </resultMap>-->
+
+   <!-- <select id="select" parameterType="java.lang.String" resultMap="BaseResultMap">
+        SELECT  s.username from tbl_sys_user s
+        where s.id = #{userId,jdbcType=VARCHAR}
+    </select>
+    SELECT DISTINCT
+    yjinfo.YDQY_Name ynBaseCustomerEnterpriseName,- 用电企业名称
+    yjinfo.DF_Name ynBaseEnterpriseSubstationName, - 电房名称]
+
+    yjinfo.YDQY_id ynBaseCustomerEnterpriseLongId, - 用电企业id
+    yjinfo.DF_id ynBaseEnterpriseSubstationLongId,- 电房id
+    yjinfo.mstatus mstatus,
+    IF(yjinfo.mstatus = 0, '未生效', IF(yjinfo.mstatus = 1, '已生效', IF(yjinfo.mstatus = -1, '通信异常', IF(yjinfo.mstatus = -1, '已删除', '其他')))) mstatusStr
+  FROM yj_info yjinfo
+  WHERE 1=1
+    <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+        AND yjinfo.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+    </if>
+    <if test="ynBaseCustomerEnterpriseId!=null and ynBaseCustomerEnterpriseId!=''">
+        AND yjinfo.YDQY_id= #{ynBaseCustomerEnterpriseId,jdbcType=VARCHAR}
+    </if>
+    <if test="ynBaseEnterpriseSubstationId!=null and ynBaseEnterpriseSubstationId!=''">
+        AND yjinfo.DF_id= #{ynBaseEnterpriseSubstationId,jdbcType=VARCHAR}
+    </if>
+  AND yjinfo.mstatus > -2
+    ORDER BY yjinfo.WBGS_id,yjinfo.YDQY_id,yjinfo.DF_id
+    -->
+<select id="selectEnterpriseSubstationHaveMonitoringPoint" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+    SELECT
+    yjinfo.YDQY_Name ynBaseCustomerEnterpriseName,-- 用电企业名称
+    yjinfo.DF_Name ynBaseEnterpriseSubstationName, -- 电房名称
+    yjinfo.YDQY_id ynBaseCustomerEnterpriseLongId, -- 用电企业id
+    yjinfo.DF_id ynBaseEnterpriseSubstationLongId,-- 电房id
+    CAST(COUNT(1) AS char) AS totalMonitoringPoint,-- 电房所属监测点总数
+    IFNULL(CAST((SELECT
+    COUNT(1)
+    FROM ynyjjc.yj_info A
+    WHERE A.YDQY_id = yjinfo.YDQY_id
+    AND A.DF_id = yjinfo.DF_id
+    AND A.mstatus = 0) AS char), '') AS newMonitoringPoint,  -- 新增监测点但是还没运行数目
+    IFNULL(CAST((SELECT
+    COUNT(1)
+    FROM ynyjjc.yj_info A
+    WHERE A.YDQY_id = yjinfo.YDQY_id
+    AND A.DF_id = yjinfo.DF_id
+    AND A.mstatus = 1) AS char), '') AS runMonitoringPoint,  -- 正常运行的监测点数目
+    IFNULL(CAST((SELECT
+    COUNT(1)
+    FROM ynyjjc.yj_info A
+    WHERE A.YDQY_id = yjinfo.YDQY_id
+    AND A.DF_id = yjinfo.DF_id
+    AND A.mstatus = -1) AS char), '') AS errMonitoringPoint, -- 异常的监测点数目
+    IFNULL(CAST((CASE WHEN (SELECT
+    COUNT(1)
+    FROM ynyjjc.yj_info A
+    WHERE A.YDQY_id = yjinfo.YDQY_id
+    AND A.DF_id = yjinfo.DF_id
+    AND A.JCD_Type IN (11,14) ) > 0 THEN (SELECT
+    LastWD
+    FROM ynyjjc.yj_info A
+    WHERE A.YDQY_id = yjinfo.YDQY_id
+    AND A.DF_id = yjinfo.DF_id
+    AND A.JCD_Type IN (11,14) LIMIT 1)
+    END) AS char), '') AS temperature, -- 温度
+    IFNULL(CAST((CASE WHEN (SELECT
+    COUNT(1)
+    FROM ynyjjc.yj_info A
+    WHERE A.YDQY_id = yjinfo.YDQY_id
+    AND A.DF_id = yjinfo.DF_id
+    AND A.JCD_Type IN (12,14)) > 0 THEN (SELECT
+    LastSD
+    FROM ynyjjc.yj_info A
+    WHERE A.YDQY_id = yjinfo.YDQY_id
+    AND A.DF_id = yjinfo.DF_id
+    AND A.JCD_Type IN (12,14) LIMIT 1)
+    END) AS char), '') AS humidity,  -- 湿度
+    MAX(yjinfo.mStatus) mstatus,
+    IF(MAX(yjinfo.mStatus) = 0, '未生效', IF(MAX(yjinfo.mStatus) = 1, '已生效', IF(MAX(yjinfo.mStatus) = -1, '通信异常', IF(MAX(yjinfo.mStatus) = -1, '已删除', '其他')))) mstatusStr,
+    (SELECT
+    CAST(COUNT(1) AS char)
+    FROM ${tableNameString} jg8
+    WHERE jg8.mstatus = 0
+    AND jg8.DF_id = yjinfo.DF_id) warningCount,
+    IFNULL((SELECT
+    max(jg8.GJ_CLASSTYPE)
+    FROM ${tableNameString} jg8
+    WHERE jg8.mstatus = 0
+    AND jg8.DF_id = yjinfo.DF_id),'') warningMaxLevel
+    FROM yj_info yjinfo
+    WHERE 1=1
+    <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+        AND yjinfo.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+    </if>
+    <if test="ynBaseCustomerEnterpriseId!=null and ynBaseCustomerEnterpriseId!=''">
+        AND yjinfo.YDQY_id= #{ynBaseCustomerEnterpriseId,jdbcType=VARCHAR}
+    </if>
+    <if test="ynBaseEnterpriseSubstationId!=null and ynBaseEnterpriseSubstationId!=''">
+        AND yjinfo.DF_id= #{ynBaseEnterpriseSubstationId,jdbcType=VARCHAR}
+    </if>
+    AND yjinfo.mstatus > -2
+    GROUP BY yjinfo.DF_Name,
+    yjinfo.YDQY_Name,
+    yjinfo.DF_id,
+    yjinfo.YDQY_id
+</select>
+
+    <select id="selectSubstationMsgByEnterpriseId" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        SELECT
+              yjinfo.YDQY_Name ynBaseCustomerEnterpriseName,-- 用电企业名称
+              yjinfo.DF_Name ynBaseEnterpriseSubstationName, -- 电房名称
+              yjinfo.YDQY_id ynBaseCustomerEnterpriseLongId, -- 用电企业id
+              yjinfo.DF_id ynBaseEnterpriseSubstationLongId,-- 电房id
+              CAST(COUNT(1) AS char) AS totalMonitoringPoint,-- 电房所属监测点总数
+              IFNULL(CAST((SELECT
+                  COUNT(1)
+                FROM ynyjjc.yj_info A
+                WHERE A.YDQY_id = yjinfo.YDQY_id
+                AND A.DF_id = yjinfo.DF_id
+                AND A.mStatus = 0) AS char), '') AS newMonitoringPoint,  -- 新增监测点但是还没运行数目
+              IFNULL(CAST((SELECT
+                  COUNT(1)
+                FROM ynyjjc.yj_info A
+                WHERE A.YDQY_id = yjinfo.YDQY_id
+                AND A.DF_id = yjinfo.DF_id
+                AND A.mStatus = 1) AS char), '') AS runMonitoringPoint,  -- 正常运行的监测点数目
+              IFNULL(CAST((SELECT
+                  COUNT(1)
+                FROM ynyjjc.yj_info A
+                WHERE A.YDQY_id = yjinfo.YDQY_id
+                AND A.DF_id = yjinfo.DF_id
+                AND A.mStatus = -1) AS char), '') AS errMonitoringPoint, -- 异常的监测点数目
+              IFNULL(CAST((CASE WHEN (SELECT
+                    COUNT(1)
+                  FROM ynyjjc.yj_info A
+                  WHERE A.YDQY_id = yjinfo.YDQY_id
+                  AND A.DF_id = yjinfo.DF_id
+                  AND A.JCD_Type = 11) > 0 THEN (SELECT
+                    LastWD
+                  FROM ynyjjc.yj_info A
+                  WHERE A.YDQY_id = yjinfo.YDQY_id
+                  AND A.DF_id = yjinfo.DF_id
+                  AND A.JCD_Type = 11 LIMIT 1)
+              END) AS char), '') AS temperature, -- 温度
+              IFNULL(CAST((CASE WHEN (SELECT
+                    COUNT(1)
+                  FROM ynyjjc.yj_info A
+                  WHERE A.YDQY_id = yjinfo.YDQY_id
+                  AND A.DF_id = yjinfo.DF_id
+                  AND A.JCD_Type = 12) > 0 THEN (SELECT
+                    LastSD
+                  FROM ynyjjc.yj_info A
+                  WHERE A.YDQY_id = yjinfo.YDQY_id
+                  AND A.DF_id = yjinfo.DF_id
+                  AND A.JCD_Type = 12 LIMIT 1)
+              END) AS char), '') AS humidity,  -- 湿度
+                yjinfo.mstatus mstatus,
+               IF(yjinfo.mstatus = 0, '未生效', IF(yjinfo.mstatus = 1, '已生效', IF(yjinfo.mstatus = -1, '通信异常', IF(yjinfo.mstatus = -1, '已删除', '其他')))) mstatusStr,
+               (SELECT
+                CAST(COUNT(1) AS char)
+                FROM jc_gj_82600 jg8
+                WHERE jg8.mstatus = 0
+                AND jg8.DF_id = yjinfo.DF_id) warningCount,
+                IFNULL((SELECT
+                max(jg8.GJ_CLASSTYPE)
+                FROM jc_gj_82600 jg8
+                WHERE jg8.mstatus = 0
+                AND jg8.DF_id = yjinfo.DF_id),'') warningMaxLevel
+            FROM yj_info yjinfo
+            WHERE yjinfo.YDQY_id = #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+            AND yjinfo.mStatus > -2
+            GROUP BY yjinfo.DF_Name,
+                     yjinfo.YDQY_Name,
+                     yjinfo.DF_id,
+                     yjinfo.YDQY_id
+    </select>
+    <select id="selectEquipmentMonitoringPointBySubstationId" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        SELECT
+          yjinfo.DF_id ynBaseEnterpriseSubstationLongId,		-- 电房id
+          yjinfo.DF_Name ynBaseEnterpriseSubstationName,		-- 电房名称
+          yjinfo.SBTZ_id ynBaseEquipmentLongId,		-- 设备台账id
+          yjinfo.SBTZ_Name ynBaseEquipmentName,	-- 设备台账名称
+          yjinfo.JCD_AliasID monitoringPointAliasId,	-- 平台自定义id
+          yjinfo.JCD_CoreID monitoringPointCoreId,	-- 监测点固件核心id
+
+          yjinfo.JCD_Name monitoringPointName, 	-- 监测点名称
+          yjinfo.JCD_Type monitoringPointType, -- 监测点类型 1单相，3三相，4四项，11温度，12湿度 （小于10就是基本电参量，大于10的就是环境参量）
+          IF(yjinfo.JCD_Type=1,'单相',IF(yjinfo.JCD_Type=3,'三相',IF(yjinfo.JCD_Type=4,'四相',IF(yjinfo.JCD_Type=11,'温度',IF(yjinfo.JCD_Type=12,'湿度','其他'))))) monitoringPointTypeStr,
+            yjinfo.mstatus mstatus,
+               IF(yjinfo.mstatus = 0, '未生效', IF(yjinfo.mstatus = 1, '已生效', IF(yjinfo.mstatus = -1, '通信异常', IF(yjinfo.mstatus = -1, '已删除', '其他')))) mstatusStr
+        FROM yj_info yjinfo
+        WHERE yjinfo.DF_id = #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        AND yjinfo.mStatus!=-2
+        ORDER BY yjinfo.SBTZ_id, yjinfo.JCD_CoreID
+    </select>
+
+    <!--CALL getJLDData(${monitoringPointAliasId},${monitoringPointDate},${monitoringPointType})-->
+    <!--电流、电压-->
+    <select id="selectReportByMonitoringPoint" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+     CALL getJLDData(#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},#{monitoringPointDate,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+
+<!-- 谐波电流 电压 -->
+    <select id="selectHarmonicMonitoringPoint" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+     CALL getHarmonic(#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},#{monitoringPointDate,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+    <!--  电压电流不平衡度  -->
+    <select id="selectReportByMonitoringPointTwo" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+     CALL getJLDDataTwo(#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},#{monitoringPointDate,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+    <!--  零序电流  -->
+    <select id="selectZoer" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+     CALL getZero(#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},#{monitoringPointDate,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+    <!--  视在、有功、无功、功率、分时  -->
+    <select id="selectAggregate" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+     CALL getaggregate(#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},#{monitoringPointDate,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR})
+    </select>
+<!--  查询分时电能 23：45的数据 -->
+     <select id="selectTimeSharing" resultType="java.util.LinkedHashMap" parameterType="java.util.Map">
+       select ZDL_2345,ADL_2345,BDL_2345,CDL_2345 from jc_fs_83650 where JCD_AliasID = #{monitoringPointAliasId1,jdbcType=VARCHAR} and DataDate = #{nowDateDay1,jdbcType=VARCHAR}
+
+    </select>
+
+
+    <select id="selectDDTingdianCount" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select Ye_TingdianCount,Ye_TingdianDate from jc_dd_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectDianneng" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select Right_Active_Power,Right_Reactive_Power,Contrary_Active_Power,Contrary_Reactive_Power,Right_Active_Demand,oneDate,Right_Reactive_Demand,twoDate,Contrary_Active_Demand,threeDate,Contrary_ReActive_Demand,fourDate from jc_dn_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectGLGLYS" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select AMAX_Power,AMAX_Date,AMIN_Power,AMIN_Date,RMAX_Power,RMAX_Date,RMIN_Power,RMIN_Date,YS_MAX,YS_MAX_Date,YS_MIN,YS_MIN_Date from jc_yg_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectDLJZ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select DLBPH_MAX,DLBPH_MAX_Date,DLBPH_MIN,DLBPH_MIN_Date,DLBPH_AVG,DLBPH_NINEFIVE,DL_AMAX,Dl_AMAXDate,DL_AMIN,DL_AMINDate,DL_BMAX,Dl_BMAXDate,DL_BMIN,DL_BMINDate,DL_CMAX,Dl_CMAXDate,DL_CMIN,DL_CMINDate,DL_LMAX,Dl_LMAXDate,DL_LMIN,DL_LMINDate,sl_zongcount,sl_acount,sl_bcount,sl_ccount,sl_zongdate,sl_adate,sl_bdate,sl_cdate,sl_zxygdn,sl_fxygdn,sl_zxwgdn,sl_fxwgdn from jc_jz_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectDYJZ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select DYBPH_JCDate,DYBPH_HGL,DYBPH_CXL,DYBPH_CXDate,DYBPH_MAX,DYBPH_MAX_Date,DYBPH_MIN,DYBPH_MIN_Date,DYBPH_AVG,DYBPH_NINEFIVE,DYHGL_JCDate,DYHGL_HGL,DYHGL_CXL,DYHGL_CSXDate,DYHGL_CXXDate,DYHGL_MAX,DYHGL_MAX_Date,DYHGL_MIN,DYHGL_MIN_Date,DYHGL_AVG,DYHGL_AJCDate,DYHGL_AHGL,DYHGL_ACXL,DYHGL_ACSXDate,DYHGL_ACXXDate,DYHGL_AMAX,DYHGL_AMAX_Date,DYHGL_AMIN,DYHGL_AMIN_Date,DYHGL_AAVG,DYHGL_BJCDate,DYHGL_BHGL,DYHGL_BCXL,DYHGL_BCSXDate,DYHGL_BCXXDate,DYHGL_BMAX,DYHGL_BMAX_Date,DYHGL_BMIN,DYHGL_BMIN_Date,DYHGL_BAVG,DYHGL_CJCDate,DYHGL_CHGL,DYHGL_CCXL,DYHGL_CCSXDate,DYHGL_CCXXDate,DYHGL_CMAX,DYHGL_CMAX_Date,DYHGL_CMIN,DYHGL_CMIN_Date,DYHGL_CAVG,sy_zongcount,sy_acount,sy_bcount,sy_ccount,sy_zongdate,sy_adate,sy_bdate,sy_cdate,sy_zxygdn,sy_fxygdn,sy_zxwgdn,sy_fxwgdn from jc_jy_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectRZXB" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select dyzxb_amax,dyzxb_amin,dyzxb_aavg,dyzxb_aninefive,dyzxb_bmax,dyzxb_bmin,dyzxb_bavg,dyzxb_bninefive,dyzxb_cmax,dyzxb_cmin,dyzxb_cavg,dyzxb_cninefive,dlzxb_amax,dlzxb_amin,dlzxb_aavg,dlzxb_aninefive,dlzxb_bmax,dlzxb_bmin,dlzxb_bavg,dlzxb_bninefive,dlzxb_cmax,dlzxb_cmin,dlzxb_cavg,dlzxb_cninefive from jc_xr_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectRDX" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select dx_zongcount,dx_acount,dx_bcount,dx_ccount,dx_zongdate,dx_adate,dx_bdate,dx_cdate,begin_date,abegin_date,bbegin_date,cbegin_date,end_date,aend_date,bend_date,cend_date from jc_dx_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectDNTWO" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select Right_Active_Power,Right_Reactive_Power,Contrary_Active_Power,Contrary_Reactive_Power from jc_dn_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+
+
+    <select id="selectMDianneng" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select MRight_Active_Power,MRight_Reactive_Power,MContrary_Active_Power,MContrary_Reactive_Power,MRight_Active_Demand,MoneDate,MRight_Reactive_Demand,MtwoDate,MContrary_Active_Demand,MthreeDate,MContrary_ReActive_Demand,MfourDate from jc_mn_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectMGLGLYS" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+          select AMAX_PowerM,AMAX_DateM,AMIN_PowerM,AMIN_DateM,RMAX_PowerM,RMAX_DateM,RMIN_PowerM,RMIN_DateM,YS_MAXM,YS_MAX_DateM,YS_MINM,YS_MIN_DateM from jc_mj_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectMDLJZ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select MDLBPH_MAX,MDLBPH_MAX_Date,MDLBPH_MIN,MDLBPH_MIN_Date,MDLBPH_AVG,MDLBPH_NINEFIVE,MDL_AMAX,MDl_AMAXDate,MDL_AMIN,MDL_AMINDate,MDL_BMAX,MDl_BMAXDate,MDL_BMIN,MDL_BMINDate,MDL_CMAX,MDl_CMAXDate,MDL_CMIN,MDL_CMINDate,MDL_LMAX,MDl_LMAXDate,MDL_LMIN,MDL_LMINDate,Msl_zongcount,Msl_acount,Msl_bcount,Msl_ccount,Msl_zongdate,Msl_adate,Msl_bdate,Msl_cdate,Msl_zxygdn,Msl_fxygdn,Msl_zxwgdn,Msl_fxwgdn from jc_ml_83650 where  JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectMDYJZ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select DYBPH_JCDateM,DYBPH_HGLM,DYBPH_CXLM,DYBPH_CXDateM,DYBPH_MAXM,DYBPH_MAX_DateM,DYBPH_MINM,DYBPH_MIN_DateM,DYBPH_AVGM,DYBPH_NINEFIVEM,DYHGL_JCDateM,DYHGL_HGLM,DYHGL_CXLM,DYHGL_CSXDateM,DYHGL_CXXDateM,DYHGL_MAXM,DYHGL_MAX_DateM,DYHGL_MINM,DYHGL_MIN_DateM,DYHGL_AVGM,DYHGL_AJCDateM,DYHGL_AHGLM,DYHGL_ACXLM,DYHGL_ACSXDateM,DYHGL_ACXXDateM,DYHGL_AMAXM,DYHGL_AMAX_DateM,DYHGL_AMINM,DYHGL_AMIN_DateM,DYHGL_AAVGM,DYHGL_BJCDateM,DYHGL_BHGLM,DYHGL_BCXLM,DYHGL_BCSXDateM,DYHGL_BCXXDateM,DYHGL_BMAXM,DYHGL_BMAX_DateM,DYHGL_BMINM,DYHGL_BMIN_DateM,DYHGL_BAVGM,DYHGL_CJCDateM,DYHGL_CHGLM,DYHGL_CCXLM,DYHGL_CCSXDateM,DYHGL_CCXXDateM,DYHGL_CMAXM,DYHGL_CMAX_DateM,DYHGL_CMINM,DYHGL_CMIN_DateM,DYHGL_CAVGM,sy_zongcountM,sy_acountM,sy_bcountM,sy_ccountM,sy_zongdateM,sy_adateM,sy_bdateM,sy_cdateM,sy_zxygdnM,sy_fxygdnM,sy_zxwgdnM,sy_fxwgdnM from jc_my_83650 where  JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectMRZXB" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select Mdyzxb_amax,Mdyzxb_amin,Mdyzxb_aavg,Mdyzxb_aninefive,Mdyzxb_bmax,Mdyzxb_bmin,Mdyzxb_bavg,Mdyzxb_bninefive,Mdyzxb_cmax,Mdyzxb_cmin,Mdyzxb_cavg,Mdyzxb_cninefive,Mdlzxb_amax,Mdlzxb_amin,Mdlzxb_aavg,Mdlzxb_aninefive,Mdlzxb_bmax,Mdlzxb_bmin,Mdlzxb_bavg,Mdlzxb_bninefive,Mdlzxb_cmax,Mdlzxb_cmin,Mdlzxb_cavg,Mdlzxb_cninefive from jc_mx_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectMRDX" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+       SELECT mdx_zongcount,mdx_acount,mdx_bcount,mdx_ccount,mdx_zongdate,mdx_adate,mdx_bdate,mdx_cdate,mbegin_date,mabegin_date,mbbegin_date,mcbegin_date,mend_date,maend_date,mbend_date,mcend_date from jc_md_83650 where JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR} and DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectMDiannengQ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      select createdate,${tag} from jc_dn_83650 where JCD_AliasID= #{monitoringPointAliasId} and datadate like concat(concat(${monitoringPointDate}),'%')
+    </select>
+
+    <select id="selectMGLYSQ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      select createdate,${tag} from jc_yg_83650 where  JCD_AliasID= #{monitoringPointAliasId} and datadate like concat(concat(${monitoringPointDate}),'%')
+    </select>
+
+    <select id="selectMDLQ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      select createdate,${tag} from jc_jz_83650 where  JCD_AliasID= #{monitoringPointAliasId} and datadate like concat(concat(${monitoringPointDate}),'%')
+    </select>
+
+    <select id="selectMDYQ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      select createdate,${tag} from jc_jy_83650 where  JCD_AliasID= #{monitoringPointAliasId} and datadate like concat(concat(${monitoringPointDate}),'%')
+    </select>
+
+    <select id="selectMAXBQ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      select createdate,${tag} from jc_xr_83650 where  JCD_AliasID= #{monitoringPointAliasId} and datadate like concat(concat(${monitoringPointDate}),'%')
+    </select>
+
+    <select id="selectMDXQ" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      select createdate,${tag} from jc_dx_83650 where  JCD_AliasID= #{monitoringPointAliasId} and datadate like concat(concat(${monitoringPointDate}),'%')
+    </select>
+
+    <select id="selectMTD" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      select MonthTDCount,MonthTDDate from jc_mn_83650 where  JCD_AliasID= #{monitoringPointAliasId} and datadate like concat(concat(${monitoringPointDate}),'%')
+    </select>
+
+
+
+
+
+    <select id="selectXaxisDataWhenResultIsNull" resultType="java.lang.String" parameterType="java.util.Map">
+        SELECT ttt.timePoint FROM (
+            SELECT CAST(@rownum:=@rownum+1 AS CHAR) AS rownum,tt.timePoint FROM (
+            SELECT  '00:00' timePoint union all
+            SELECT  '00:15' timePoint union all
+            SELECT  '00:30' timePoint union all
+            SELECT  '00:45' timePoint union all
+            SELECT  '01:00' timePoint union all
+            SELECT  '01:15' timePoint union all
+            SELECT  '01:30' timePoint union all
+            SELECT  '01:45' timePoint union all
+            SELECT  '02:00' timePoint union all
+            SELECT  '02:15' timePoint union all
+            SELECT  '02:30' timePoint union all
+            SELECT  '02:45' timePoint union all
+            SELECT  '03:00' timePoint union all
+            SELECT  '03:15' timePoint union all
+            SELECT  '03:30' timePoint union all
+            SELECT  '03:45' timePoint union all
+            SELECT  '04:00' timePoint union all
+            SELECT  '04:15' timePoint union all
+            SELECT  '04:30' timePoint union all
+            SELECT  '04:45' timePoint union all
+            SELECT  '05:00' timePoint union all
+            SELECT  '05:15' timePoint union all
+            SELECT  '05:30' timePoint union all
+            SELECT  '05:45' timePoint union all
+            SELECT  '06:00' timePoint union all
+            SELECT  '06:15' timePoint union all
+            SELECT  '06:30' timePoint union all
+            SELECT  '06:45' timePoint union all
+            SELECT  '07:00' timePoint union all
+            SELECT  '07:15' timePoint union all
+            SELECT  '07:30' timePoint union all
+            SELECT  '07:45' timePoint union all
+            SELECT  '08:00' timePoint union all
+            SELECT  '08:15' timePoint union all
+            SELECT  '08:30' timePoint union all
+            SELECT  '08:45' timePoint union all
+            SELECT  '09:00' timePoint union all
+            SELECT  '09:15' timePoint union all
+            SELECT  '09:30' timePoint union all
+            SELECT  '09:45' timePoint union all
+            SELECT  '10:00' timePoint union all
+            SELECT  '10:15' timePoint union all
+            SELECT  '10:30' timePoint union all
+            SELECT  '10:45' timePoint union all
+            SELECT  '11:00' timePoint union all
+            SELECT  '11:15' timePoint union all
+            SELECT  '11:30' timePoint union all
+            SELECT  '11:45' timePoint union all
+            SELECT  '12:00' timePoint union all
+            SELECT  '12:15' timePoint union all
+            SELECT  '12:30' timePoint union all
+            SELECT  '12:45' timePoint union all
+            SELECT  '13:00' timePoint union all
+            SELECT  '13:15' timePoint union all
+            SELECT  '13:30' timePoint union all
+            SELECT  '13:45' timePoint union all
+            SELECT  '14:00' timePoint union all
+            SELECT  '14:15' timePoint union all
+            SELECT  '14:30' timePoint union all
+            SELECT  '14:45' timePoint union all
+            SELECT  '15:00' timePoint union all
+            SELECT  '15:15' timePoint union all
+            SELECT  '15:30' timePoint union all
+            SELECT  '15:45' timePoint union all
+            SELECT  '16:00' timePoint union all
+            SELECT  '16:15' timePoint union all
+            SELECT  '16:30' timePoint union all
+            SELECT  '16:45' timePoint union all
+            SELECT  '17:00' timePoint union all
+            SELECT  '17:15' timePoint union all
+            SELECT  '17:30' timePoint union all
+            SELECT  '17:45' timePoint union all
+            SELECT  '18:00' timePoint union all
+            SELECT  '18:15' timePoint union all
+            SELECT  '18:30' timePoint union all
+            SELECT  '18:45' timePoint union all
+            SELECT  '19:00' timePoint union all
+            SELECT  '19:15' timePoint union all
+            SELECT  '19:30' timePoint union all
+            SELECT  '19:45' timePoint union all
+            SELECT  '20:00' timePoint union all
+            SELECT  '20:15' timePoint union all
+            SELECT  '20:30' timePoint union all
+            SELECT  '20:45' timePoint union all
+            SELECT  '21:00' timePoint union all
+            SELECT  '21:15' timePoint union all
+            SELECT  '21:30' timePoint union all
+            SELECT  '21:45' timePoint union all
+            SELECT  '22:00' timePoint union all
+            SELECT  '22:15' timePoint union all
+            SELECT  '22:30' timePoint union all
+            SELECT  '22:45' timePoint union all
+            SELECT  '23:00' timePoint union all
+            SELECT  '23:15' timePoint union all
+            SELECT  '23:30' timePoint union all
+            SELECT  '23:45' timePoint
+  ) tt,(SELECT @rownum:=-1) r
+  )ttt WHERE MOD(ttt.rownum,#{rowNumber,mode=IN,jdbcType=VARCHAR})=0
+
+    </select>
+
+    <select id="selectWarningByMonitoringPoint" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      CALL getJLDGJ(#{objectId,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR},#{limitStart,mode=IN,jdbcType=VARCHAR},#{limitEnd,mode=IN,jdbcType=VARCHAR},#{warningBackDay,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+    <select id="selectElectricAnalysisByMonitoringPoint" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+     CALL getJLDFX(#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR},#{monitoringPointDate,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+    <!--<select id="selectElectricAnalysisByMonitoringPointDay" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+        select maxdaypower-(select zdl_0000 from jc_fs_83650 where JCD_AliasID= '83650_1714_1920_000000000000180601000006_06' and  DataDate = '20181015') from  jc_dn_83650 where  JCD_AliasID= '83650_1714_1920_000000000000180601000006_06' and  DataDate = '20181015'
+
+
+
+
+        select MRight_Active_power from jc_mn_83650 where JCD_AliasID= '83650_1714_1920_000000000000180601000006_06' and  DataDate = '201810'
+    </select>
+
+
+
+    <select id="selectElectricAnalysisByMonitoringPointMonth" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+             select MRight_Active_Power from jc_mn_83650 where JCD_AliasID= #{monitoringPointAliasId} and  DataDate = #{monitoringPointDate,jdbcType=VARCHAR}
+    </select>-->
+
+
+
+    <select id="selectElectricAnalysisVolume" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+            select EDRL from yj_info where  JCD_AliasID= #{monitoringPointAliasId}
+    </select>
+
+
+
+
+    <select id="selectYnYjInFoByMonitoringObjectDTO" resultType="java.util.LinkedHashMap">
+        SELECT
+        yjinfo.LastDataTag lastDataTag ,
+        yjinfo.DF_id ynBaseEnterpriseSubstationLongId,		-- 电房id
+        yjinfo.DF_Name ynBaseEnterpriseSubstationName,		-- 电房名称
+        yjinfo.SBTZ_id ynBaseEquipmentLongId,		-- 设备台账id
+        yjinfo.SBTZ_Name ynBaseEquipmentName,	-- 设备台账名称
+        yjinfo.JCD_AliasID monitoringPointAliasId,	-- 平台自定义id
+        yjinfo.JCD_CoreID monitoringPointCoreId,	-- 监测点固件核心id
+        yjinfo.JCD_Name monitoringPointName, 	-- 监测点名称
+        yjinfo.JCD_Addr monitoringPointLogicAddr,
+        yjinfo.JCD_SimCardNO monitoringSimCardNo,
+        yjinfo.JCD_SimCardInnerNO monitoringSimCardInnerNo,
+        yjinfo.JCD_PT monitoringPt,
+        yjinfo.JCD_CT monitoringCt,
+        yjinfo.JCD_Type monitoringPointType, -- 监测点类型 1单相，3三相，4四项，11温度，12湿度 （小于10就是基本电参量，大于10的就是环境参量）
+        IF(yjinfo.JCD_Type = 1, '单相', IF(yjinfo.JCD_Type = 3, '三相', IF(yjinfo.JCD_Type = 4, '四相', IF(yjinfo.JCD_Type = 11, '温度', IF(yjinfo.JCD_Type = 12, '湿度', '其他'))))) monitoringPointTypeStr,
+        yjinfo.mstatus mstatus,
+        IF(yjinfo.mstatus = 0, '未生效', IF(yjinfo.mstatus = 1, '已生效', IF(yjinfo.mstatus = -1, '通信异常', IF(yjinfo.mstatus = -1, '已删除', '其他')))) mstatusStr
+        FROM yj_info yjinfo
+        WHERE 1 = 1
+        AND yjinfo.mStatus != -2
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND yjinfo.JCD_AliasID= #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointCoreId!=null and monitoringPointCoreId!=''">
+            AND yjinfo.JCD_CoreID= #{monitoringPointCoreId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseStaffCompanyId!=null and ynBaseStaffCompanyId!=''">
+            AND yjinfo.WBGS_id= #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yjinfo.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+
+    <select id="selectEnterpriseInfoByCompanyIdAndEnterpriseName" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.MonitoringObjectDTO">
+        SELECT
+          yi.WBGS_id ynBaseStaffCompanyId, -- 维保公司id
+          yi.WBGS_Name ynBaseStaffCompanyName,-- 维保公司名称
+          yi.YDQY_id ynBaseCustomerEnterpriseLongId, -- 用电企业id
+          yi.YDQY_Name ynBaseCustomerEnterpriseName -- 用电企业名称
+        FROM yj_info yi
+        WHERE 1=1
+        AND yi.WBGS_id = #{ynBaseStaffCompanyId,jdbcType=VARCHAR}
+        AND yi.mStatus > -2
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yi.YDQY_id= #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseCustomerEnterpriseName!=null and ynBaseCustomerEnterpriseName!=''">
+            AND yi.YDQY_Name like  CONCAT('%',#{ynBaseCustomerEnterpriseName,jdbcType=VARCHAR},'%' )
+        </if>
+        GROUP BY yi.WBGS_id,
+                 yi.WBGS_Name,
+                 yi.YDQY_id,
+                 yi.YDQY_Name
+    </select>
+
+    <select id="selectWarningByMonitoringPointCount" resultType="java.util.LinkedHashMap"  parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+         CALL getJLDGJCOUNT(#{objectId,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR},#{warningBackDay,mode=IN,jdbcType=VARCHAR})
+    </select>
+    <select id="selectCompanyByOnLineMonitoringDTO" resultType="java.util.LinkedHashMap">
+        SELECT DISTINCT
+        CAST(yi.YDQY_id AS CHAR) ynBaseCustomerEnterpriseLongId,
+        yi.YDQY_Name ynBaseCustomerEnterpriseName,
+        CAST(yi.WBGS_id AS CHAR) ynBaseStaffCompanyId,
+        yi.WBGS_Name ynBaseStaffCompanyName
+        FROM yj_info yi
+        WHERE yi.mStatus != -2
+        <if test="ynBaseCustomerEnterpriseLongId!=null and ynBaseCustomerEnterpriseLongId!=''">
+            AND yi.YDQY_id = #{ynBaseCustomerEnterpriseLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="ynBaseEnterpriseSubstationLongId!=null and ynBaseEnterpriseSubstationLongId!=''">
+            AND yi.DF_id = #{ynBaseEnterpriseSubstationLongId,jdbcType=VARCHAR}
+        </if>
+        <if test="monitoringPointAliasId!=null and monitoringPointAliasId!=''">
+            AND yi.JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR}
+        </if>
+    </select>
+
+</mapper>

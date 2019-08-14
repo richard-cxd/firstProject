@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.AlarmMapper">
+
+
+
+
+    <select id="findcompany" resultType="java.util.Map">
+          SELECT DISTINCT YDQY_id YDQYid,YDQY_Name YDQYName FROM yj_info WHERE WBGS_id=#{companyId} AND mStatus=1
+    </select>
+
+    <select id="findSubstation" resultType="java.util.Map">
+          SELECT DISTINCT DF_id DFid,DF_Name DFName FROM yj_info WHERE YDQY_id=#{companyId} AND mStatus=1
+    </select>
+
+    <select id="findmonitoringInfo" resultType="java.util.Map">
+          SELECT DISTINCT JCD_AliasID JCDid,JCD_Name JCDName FROM yj_info WHERE DF_id=#{substationId} AND mStatus=1
+    </select>
+
+
+    <select id="findmessage" resultType="java.util.Map">
+          SELECT
+      tt.jcdCoreId monitoringPointCoreId,
+      tt.warningType,
+      IF(tt.warningType = 'DY', '电压', IF(tt.warningType = 'YH', '电压不平衡度', IF(tt.warningType = 'DL', '电流', IF(tt.warningType = 'LH', '电流不平衡度', IF(tt.warningType = 'GL', '功率',  IF(tt.warningType = 'WD', '温度', IF(tt.warningType = 'SD', '湿度',IF(tt.warningType = 'QX', '缺相',IF(tt.warningType = 'YS', '因数', '其他'))))))))) warningTypeStr,
+      tt.warningStatus,
+      tt.warningValue,
+      tt.warningUnit,
+      tt.ratedValue,
+      tt.existsRatedValue
+    FROM (SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 1) warningType,
+        fsplit(yi.GJ_StatusList, ',', 1) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 1) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 1) warningUnit,
+        yi.EDDY ratedValue,
+        '1' existsRatedValue,
+        '1' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+      AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 2) warningType,
+        fsplit(yi.GJ_StatusList, ',', 2) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 2) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 2) warningUnit,
+        yi.EDYH ratedValue,
+        '1' existsRatedValue,
+        '2' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 3) warningType,
+        fsplit(yi.GJ_StatusList, ',', 3) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 3) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 3) warningUnit,
+        yi.EDDL ratedValue,
+         '1' existsRatedValue,
+        '3' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 4) warningType,
+        fsplit(yi.GJ_StatusList, ',', 4) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 4) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 4) warningUnit,
+        yi.EDLH ratedValue,
+         '1' existsRatedValue,
+        '4' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 5) warningType,
+        fsplit(yi.GJ_StatusList, ',', 5) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 5) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 5) warningUnit,
+        yi.EDRL ratedValue,
+         '1' existsRatedValue,
+        '5' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 6) warningType,
+        fsplit(yi.GJ_StatusList, ',', 6) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 6) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 6) warningUnit,
+        yi.EDWD ratedValue,
+        '1' existsRatedValue,
+        '6' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 7) warningType,
+        fsplit(yi.GJ_StatusList, ',', 7) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 7) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 7) warningUnit,
+        yi.EDSD ratedValue,
+        '1' existsRatedValue,
+        '7' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+    AND yi.mStatus!=-2
+       UNION ALL
+       SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 8) warningType,
+        fsplit(yi.GJ_StatusList, ',', 8) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 8) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 8) warningUnit,
+        '' ratedValue,
+        '0' existsRatedValue,
+        '8' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+        AND yi.mStatus!=-2
+      UNION ALL
+      SELECT
+        JCD_CoreId jcdCoreId,
+        fsplit(yi.GJ_TypeList, ',', 9) warningType,
+        fsplit(yi.GJ_StatusList, ',',9) warningStatus,
+        fsplit(yi.GJ_ValueList, ',', 9) warningValue,
+        fsplit(yi.GJ_UnitList, ',', 9) warningUnit,
+        '' ratedValue,
+        '0' existsRatedValue,
+        '9' orderInt
+      FROM yj_info yi
+      WHERE yi.JCD_AliasID = #{aliasId}
+    AND yi.mStatus!=-2
+    ) tt ORDER BY tt.orderInt
+    </select>
+
+
+    <update id="updateWarningConfig">
+        UPDATE yj_info yi
+            SET yi.GJ_TypeList   = #{warningTypeList,jdbcType=VARCHAR},
+                yi.GJ_StatusList  = #{warningStatusList,jdbcType=VARCHAR},
+                yi.GJ_ValueList   = #{warningValueList,jdbcType=VARCHAR},
+                yi.GJ_UnitList    = #{warningUnitList,jdbcType=VARCHAR},
+                yi.EDDL   = #{ratedCurrent,jdbcType=VARCHAR},
+                yi.EDDY   = #{ratedVoltage,jdbcType=VARCHAR},
+                yi.EDRL   = #{ratedCapacity,jdbcType=VARCHAR},
+                yi.EDWD   = #{ratedTemperature,jdbcType=VARCHAR},
+                yi.EDSD   = #{ratedHumidity,jdbcType=VARCHAR},
+                yi.EDLH   = #{ratedCurrentBalance,jdbcType=VARCHAR},
+                yi.EDYH   = #{ratedVoltageBalance,jdbcType=VARCHAR}
+            WHERE yi.JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR}
+            AND yi.mStatus != -2
+    </update>
+
+    <select id="findcodeid" resultType="java.util.Map">
+          SELECT DISTINCT JCD_CoreID Coreid FROM yj_info WHERE JCD_AliasID=#{aliasId} AND mStatus=1
+    </select>
+
+
+    <select id="selectAlarmByMonitoringPoint" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      CALL getGJM(#{objectId,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR},#{limitStart,mode=IN,jdbcType=VARCHAR},#{limitEnd,mode=IN,jdbcType=VARCHAR},#{warningBackDay,mode=IN,jdbcType=VARCHAR},#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+    <select id="selectAlarmByMonitoringPointCount" resultType="java.util.LinkedHashMap"  parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+         CALL getGJMCOUNT(#{objectId,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR},#{warningBackDay,mode=IN,jdbcType=VARCHAR},#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+
+
+    <select id="findGJdate" resultType="java.util.Map">
+          SELECT CreateDate datetime FROM jc_gj_83650 WHERE JCD_AliasID=#{aliasId}
+    </select>
+
+
+
+    <select id="selectGJCOUNT" resultType="java.util.Map">
+          SELECT idJC jcid FROM jc_gj_83650 WHERE JCD_AliasID=#{aliasId}
+    </select>
+
+
+
+
+</mapper>

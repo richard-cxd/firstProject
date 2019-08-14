@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.AlarmMapper">
+
+
+
+
+    <select id="findcompany" resultType="java.util.Map">
+          SELECT DISTINCT YDQY_id YDQYid,YDQY_Name YDQYName FROM yj_info WHERE WBGS_id=#{companyId} AND (mStatus=1 OR mStatus=-1)
+    </select>
+
+    <select id="findSubstation" resultType="java.util.Map">
+          SELECT DISTINCT DF_id DFid,DF_Name DFName FROM yj_info WHERE YDQY_id=#{companyId} AND (mStatus=1 OR mStatus=-1)
+    </select>
+
+    <select id="findmonitoringInfo" resultType="java.util.Map">
+          SELECT DISTINCT idJCD JCDid,JCD_Name JCDName FROM yj_info WHERE DF_id=#{substationId} AND (mStatus=1 OR mStatus=-1)
+    </select>
+
+
+    <select id="findmessage" resultType="java.util.LinkedHashMap">
+       SELECT
+            tt.idJCD idJCD,
+            tt.waringVlue warningValue,
+            tt.warningUnit warningUnit,
+            tt.waringStatus warningStatus,
+            tt.waringName warningName,
+            IF(tt.waringName = "AD","报警持续时间",IF(tt.waringName = "RT","告警恢复时间",IF(tt.waringName = "DYUP","电压上限",IF(tt.waringName = "DYD","电压下限",IF(tt.waringName = "ODY","过压电压值",IF(tt.waringName = "ODYR","过压恢复电压值",IF(tt.waringName = "DL","额定电流",IF(tt.waringName = "DLCO","电流过流相对额定值",IF(tt.waringName = "DLCOR","电流过负荷恢复相对额定值",IF(tt.waringName = "DLH","电流不平衡度阈值",IF(tt.waringName = "DLHR","电流不平衡度恢复阈值",IF(tt.waringName = "DYH","电压不平衡度阈值",IF(tt.waringName = "DYHR","电压不平衡度恢复阈值",IF(tt.waringName = "LO","负荷过载相对额定值",IF(tt.waringName = "LOR","负荷过载恢复相对额定值",IF(tt.waringName = "ZL","零相电流报警阈值",IF(tt.waringName = "ZLR","零相电流报警恢复阈值",IF(tt.waringName = "TC","变压器容量","其他")))))))))))))))))) warningNameStr,
+            IF(tt.waringName = "AD","默认值:15,最小值不小于0",IF(tt.waringName = "RT","默认值:15,最小值不小于0",IF(tt.waringName = "DYUP","默认值:1.07,最大值:1.30,最小值:1.00",IF(tt.waringName = "DYD","默认值:0.93,最大值:1.10,最小值:0.60",IF(tt.waringName = "ODY","默认值:1.20,最大值:1.50,最小值:1.00",IF(tt.waringName = "ODYR","默认值:1.05,最大值:1.20,最小值:0.8",IF(tt.waringName = "DL","默认值:5,最大值:5,最小值:1",IF(tt.waringName = "DLCO","默认值:1,最大值:2,最小值:1",IF(tt.waringName = "DLCOR","默认值:1,最大值:2,最小值:0.3",IF(tt.waringName = "DLH","默认值:50,最大值:99.99,最小值:1",IF(tt.waringName = "DLHR","默认值:40,最大值:99.98,最小值:1",IF(tt.waringName = "DYH","默认值:30,最大值:99,最小值:1",IF(tt.waringName = "DYHR","默认值:10,最大值:60,最小值:1",IF(tt.waringName = "LO","默认值:1.20,最大值:2,最小值:1",IF(tt.waringName = "LOR","默认值:0.95,最大值:2,最小值:0.3",IF(tt.waringName = "ZL","默认值:25,最大值:80,最小值:1",IF(tt.waringName = "ZLR","默认值:15,最大值:80,最小值:1",IF(tt.waringName = "TC","默认:10,最大值:99,最小值:1(待定)","其他")))))))))))))))))) warningRanges
+
+          FROM (
+            select idJCD idJCD,AD waringVlue,fsplit(unit,",",1) warningUnit,fsplit(ison,",",1) waringStatus,fsplit(SetName,",",1) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,RT waringVlue,fsplit(unit,",",2) warningUnit,fsplit(ison,",",2) waringStatus,fsplit(SetName,",",2) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DYUP waringVlue,fsplit(unit,",",3) warningUnit,fsplit(ison,",",3) waringStatus,fsplit(SetName,",",3) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DYD waringVlue,fsplit(unit,",",4) warningUnit,fsplit(ison,",",4) waringStatus,fsplit(SetName,",",4) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,ODY waringVlue,fsplit(unit,",",5) warningUnit,fsplit(ison,",",5) waringStatus,fsplit(SetName,",",5) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,ODYR waringVlue,fsplit(unit,",",6) warningUnit,fsplit(ison,",",6) waringStatus,fsplit(SetName,",",6) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DL waringVlue,fsplit(unit,",",7) warningUnit,fsplit(ison,",",7) waringStatus,fsplit(SetName,",",7) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DLCO waringVlue,fsplit(unit,",",8) warningUnit,fsplit(ison,",",8) waringStatus,fsplit(SetName,",",8) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DLCOR waringVlue,fsplit(unit,",",9) warningUnit,fsplit(ison,",",9) waringStatus,fsplit(SetName,",",9) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DLH waringVlue,fsplit(unit,",",10) warningUnit,fsplit(ison,",",10) waringStatus,fsplit(SetName,",",10) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DLHR waringVlue,fsplit(unit,",",11) warningUnit,fsplit(ison,",",11) waringStatus,fsplit(SetName,",",11) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DYH waringVlue,fsplit(unit,",",12) warningUnit,fsplit(ison,",",12) waringStatus,fsplit(SetName,",",12) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,DYHR waringVlue,fsplit(unit,",",13) warningUnit,fsplit(ison,",",13) waringStatus,fsplit(SetName,",",13) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,LO waringVlue,fsplit(unit,",",14) warningUnit,fsplit(ison,",",14) waringStatus,fsplit(SetName,",",14) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,LOR waringVlue,fsplit(unit,",",15) warningUnit,fsplit(ison,",",15) waringStatus,fsplit(SetName,",",15) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,ZL waringVlue,fsplit(unit,",",16) warningUnit,fsplit(ison,",",16) waringStatus,fsplit(SetName,",",16) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,ZLR waringVlue,fsplit(unit,",",17) warningUnit,fsplit(ison,",",17) waringStatus,fsplit(SetName,",",17) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          union all
+          select idJCD idJCD,TC waringVlue,fsplit(unit,",",19) warningUnit,fsplit(ison,",",19) waringStatus,fsplit(SetName,",",19) waringName FROM bn_gj WHERE idJCD=#{aliasId}
+          ) tt
+    </select>
+
+
+    <update id="updateWarningConfig">
+        UPDATE yj_info yi
+            SET yi.GJ_TypeList   = #{warningTypeList,jdbcType=VARCHAR},
+                yi.GJ_StatusList  = #{warningStatusList,jdbcType=VARCHAR},
+                yi.GJ_ValueList   = #{warningValueList,jdbcType=VARCHAR},
+                yi.GJ_UnitList    = #{warningUnitList,jdbcType=VARCHAR},
+                yi.EDDL   = #{ratedCurrent,jdbcType=VARCHAR},
+                yi.EDDY   = #{ratedVoltage,jdbcType=VARCHAR},
+                yi.EDRL   = #{ratedCapacity,jdbcType=VARCHAR},
+                yi.EDWD   = #{ratedTemperature,jdbcType=VARCHAR},
+                yi.EDSD   = #{ratedHumidity,jdbcType=VARCHAR},
+                yi.EDLH   = #{ratedCurrentBalance,jdbcType=VARCHAR},
+                yi.EDYH   = #{ratedVoltageBalance,jdbcType=VARCHAR}
+            WHERE yi.JCD_AliasID = #{monitoringPointAliasId,jdbcType=VARCHAR}
+            AND yi.mStatus != -2
+    </update>
+
+    <select id="findcodeid" resultType="java.util.Map">
+          SELECT DISTINCT JCD_CoreID Coreid FROM yj_info WHERE JCD_AliasID=#{aliasId} AND mStatus=1
+    </select>
+
+
+    <select id="selectAlarmByMonitoringPoint" resultType="java.util.LinkedHashMap" parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+      CALL getGJM(#{objectId,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR},#{limitStart,mode=IN,jdbcType=VARCHAR},#{limitEnd,mode=IN,jdbcType=VARCHAR},#{warningBackDay,mode=IN,jdbcType=VARCHAR},#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+    <select id="selectAlarmByMonitoringPointCount" resultType="java.util.LinkedHashMap"  parameterType="pw.wechatbrother.base.dto.onlinemonitoring.OnLineMonitoringDTO">
+         CALL getGJMCOUNT(#{objectId,mode=IN,jdbcType=VARCHAR},#{tag,mode=IN,jdbcType=VARCHAR},#{warningBackDay,mode=IN,jdbcType=VARCHAR},#{monitoringPointAliasId,mode=IN,jdbcType=VARCHAR})
+    </select>
+
+
+
+    <select id="findGJdate" resultType="java.util.Map">
+          SELECT CreateDate datetime FROM jc_gj_83650 WHERE JCD_AliasID=#{aliasId}
+    </select>
+
+
+
+    <select id="selectGJCOUNT" resultType="java.util.Map">
+          SELECT idJC jcid FROM jc_gj_83650 WHERE JCD_AliasID=#{aliasId}
+    </select>
+
+    <update id="updateWarningConfigAD" parameterType="java.util.Map">
+        UPDATE bn_gj
+        SET AD = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigRT" >
+        UPDATE bn_gj
+        SET RT = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDYUP" >
+        UPDATE bn_gj
+        SET DYUP = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDYD" >
+        UPDATE bn_gj
+        SET DYD = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigODY" >
+        UPDATE bn_gj
+        SET ODY = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigODYR" >
+        UPDATE bn_gj
+        SET ODYR = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDL" >
+        UPDATE bn_gj
+        SET DL = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDLCO" >
+        UPDATE bn_gj
+        SET DLCO = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDLCOR" >
+        UPDATE bn_gj
+        SET DLCOR = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDLH" >
+        UPDATE bn_gj
+        SET DLH = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDLHR" >
+        UPDATE bn_gj
+        SET DLHR = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDYH" >
+        UPDATE bn_gj
+        SET DYH = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigDYHR" >
+        UPDATE bn_gj
+        SET DYHR = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigLO" >
+        UPDATE bn_gj
+        SET LO = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigLOR" >
+        UPDATE bn_gj
+        SET LOR = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigZL" >
+        UPDATE bn_gj
+        SET ZL = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigZLR" >
+        UPDATE bn_gj
+        SET ZLR = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigPF" >
+        UPDATE bn_gj
+        SET PF = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <update id="updateWarningConfigTC" >
+        UPDATE bn_gj
+        SET TC = #{values} , ison = #{allison}
+        WHERE idJCD = #{idJCD}
+    </update>
+
+    <select id="findCoreId" resultType="java.util.Map">
+          SELECT JCD_CoreID CoreID FROM yj_info WHERE idJCD=#{idJCD}
+    </select>
+
+
+
+
+</mapper>

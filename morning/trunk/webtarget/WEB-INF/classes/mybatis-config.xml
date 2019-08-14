@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD SQL MAP Config 3.1//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <settings>
+        <setting name="callSettersOnNulls" value="true"/><!--处理空值字段不返回的问题-->
+    </settings>
+<!--    <typeAliases>
+        <typeAlias alias="Resource" type="com.gzkit.base.domain.Resource"/>
+    </typeAliases>-->
+    <!--分页拦截器 -->
+<!--    <plugins>
+        <plugin interceptor="com.gzkit.base.utils.common.PageInterceptor">
+            <property name="databaseType" value="mysql"/>
+            <property name="pageSqlId" value=".*Page$" />
+        </plugin>
+    </plugins>-->
+</configuration>

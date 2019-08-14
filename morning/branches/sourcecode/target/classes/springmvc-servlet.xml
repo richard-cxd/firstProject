@@ -1,0 +1,98 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+         http://www.springframework.org/schema/mvc
+         http://www.springframework.org/schema/mvc/spring-mvc-4.1.xsd
+         http://www.springframework.org/schema/aop
+         http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!-- 自动扫描包 其中base-package为需要扫描的包（包括子包）
+
+@Service用于标注业务层的组件，@Controller用于标注控制层组件（如struts中的action），
+@Repository用于标注数据访问组件，即DAO组件，
+而@Component泛指组件，当组件不好归类的时候，我们可以使用这个注解进行标注。但是在目前的spring版本中，
+这几个注解的作用是一样的，但是在以后可能会进行区分。
+   -->
+    <!-- 自动扫描该包，使SpringMVC认为包下用了@controller注解的类是控制器 -->
+        <!-- 设置使用注解的类所在的jar包 -->
+        <!-- 扫描注解Bean -->
+        <!-- 自动扫描该包，使SpringMVC认为包下用了@controller注解的类是控制器 -->
+        <context:component-scan base-package="pw.wechatbrother.**">
+            <context:include-filter type="annotation"
+                                    expression="org.springframework.stereotype.Controller"/>
+        </context:component-scan>
+
+         <!--最重要:::如果放在spring-context.xml中，这里的aop设置将不会生效-->
+        <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+         <!--对静态资源文件的访问，交给default servlet handler处理 -->
+        <mvc:default-servlet-handler/>
+    <!--静态资源映射 -->
+    <mvc:resources mapping="/static/**" location="/WEB-INF/static/"/>
+
+    <!--&lt;!&ndash;  引入注解   &ndash;&gt;        默认的注解映射的支持-->
+        <mvc:annotation-driven >
+            <!-- 消息转换器 ,处理返回中文字符串乱码的问题-->
+            <mvc:message-converters register-defaults="true">
+                <bean class="org.springframework.http.converter.StringHttpMessageConverter">
+                    <property name="supportedMediaTypes" value="text/html;charset=UTF-8"/>
+                </bean>
+            </mvc:message-converters>
+        </mvc:annotation-driven>
+
+
+    <!-- 配置freeMarker的模板路径 -->
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
+        <property name="templateLoaderPath" value="WEB-INF/ftl/" />
+
+        <property name="defaultEncoding" value="UTF-8" />
+        <!--加入设置：Freemarker自动导入Spring.ftl宏。不用在每个ftl里面定义这个宏。防止freemarker使用spring标签报错-->
+       <!-- <property name="freemarkerSettings">
+        <props>
+            <prop key="auto_import">include/spring.ftl as spring</prop>
+        </props>
+        </property>-->
+
+
+    </bean>
+
+    <!--app登录验证拦截-->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/api/**"/>
+            <mvc:exclude-mapping path="/api/v1/**"/>
+            <bean class="pw.wechatbrother.base.utils.safety.AppTokenInteceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
+    <!-- freemarker视图解析器 -->
+    <bean class="org.springframework.web.servlet.view.freemarker.FreeMarkerViewResolver">
+        <property name="suffix" value=".ftl" />
+        <property name="contentType" value="text/html;charset=UTF-8" />
+
+       <!--freemarker页面中获取  ${request.contextPath}-->
+        <property name="requestContextAttribute" value="request"/>
+        <!-- freemarker 静态类配置 -->
+
+        <property name="viewClass" value="org.springframework.web.servlet.view.freemarker.FreeMarkerView"/>
+    </bean>
+
+<!--    &lt;!&ndash;文件上传类实例化&ndash;&gt;
+    <bean id="multipartResolver"
+          class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        &lt;!&ndash; 默认编码 &ndash;&gt;
+        <property name="defaultEncoding" value="utf-8"/>
+        &lt;!&ndash; 文件大小最大值 &ndash;&gt;
+        <property name="maxUploadSize" value="10485760000"/>
+        &lt;!&ndash; 内存中的最大值 &ndash;&gt;
+        <property name="maxInMemorySize" value="40960"/>
+    </bean>-->
+
+
+
+</beans>

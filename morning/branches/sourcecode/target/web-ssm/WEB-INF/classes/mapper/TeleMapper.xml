@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="pw.wechatbrother.base.mapper.TeleMapper">
+
+    <select id="findKzdById" resultType="java.util.LinkedHashMap">
+                    SELECT
+                        k.KZD_SimCardInnerNO ISCSCoreID,
+                        k.KZD_Addr IContrlCmdAddr,
+                        k.LNum IContrlCmdLine
+                    FROM
+                        yj_kzd_line k
+                    WHERE
+                        k.idKZDLine = #{controlId}
+    </select>
+
+    <select id="open" parameterType="map" resultType="java.util.LinkedHashMap">
+         call _I_ADD_Ctrl_New(#{id_KZDLine},#{type})
+    </select>
+
+    <select id="off" parameterType="map" resultType="java.util.LinkedHashMap">
+
+  call _I_ADD_Ctrl_New(#{id_KZDLine},#{type})
+    </select>
+
+    <!--查询维保公司下的用电企业  yj_kzd-->
+    <select id="findEnterprise" resultType="java.util.LinkedHashMap">
+        SELECT
+            k.YDQY_id ynBaseCustomerEnterpriseId,
+            k.YDQY_Name ynBaseCustomerEnterpriseName
+        FROM
+            yj_kzd k
+        WHERE
+            k.WBGS_id = #{zoneid} GROUP BY k.YDQY_id
+    </select>
+
+    <!--//点进用电企业查看详情(开关数，控制开关)-->
+    <select id="enterpriseDetail" resultType="java.util.LinkedHashMap">
+        call getKZDList(
+        NULL ,
+        #{enterpriseId,mode=IN,jdbcType=VARCHAR},
+        NULL ,
+        NULL
+        )
+    </select>
+
+
+    <!--pc查看详情(开关数，控制开关)-->
+    <select id="getControlStatus" resultType="java.util.LinkedHashMap" flushCache="true">
+        call getKZDList(
+        #{zoneid} ,
+        NULL ,
+        NULL ,
+        NULL
+        )
+    </select>
+
+
+    <!--开关挂牌-->
+    <select id="hangOut" resultType="java.util.LinkedHashMap" flushCache="true">
+        call setLineHangTag(#{controlId});
+    </select>
+
+    <!--开关取消挂牌-->
+    <select id="cancelHangOut" resultType="java.util.LinkedHashMap" flushCache="true">
+       call removeLineHangTag(#{controlId});
+    </select>
+
+
+</mapper>
